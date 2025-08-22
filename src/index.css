@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations for enhanced UI */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Enhanced loading animations */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounceSequence {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loadingDots {
+  0%, 20% {
+    color: #ef4444;
+    transform: scale(1);
+  }
+  50% {
+    color: #dc2626;
+    transform: scale(1.2);
+  }
+  80%, 100% {
+    color: #b91c1c;
+    transform: scale(1);
+  }
+}
+
+/* Skeleton loading animation */
+@keyframes skeletonPulse {
+  0% {
+    background-color: rgba(55, 65, 81, 0.3);
+  }
+  50% {
+    background-color: rgba(75, 85, 99, 0.5);
+  }
+  100% {
+    background-color: rgba(55, 65, 81, 0.3);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 2s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-bounce-sequence {
+  animation: bounceSequence 1.4s ease-in-out infinite;
+}
+
+.animate-loading-dots {
+  animation: loadingDots 1.5s ease-in-out infinite;
+}
+
+.animate-skeleton {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #374151 25%,
+    #4b5563 37%,
+    #374151 63%
+  );
+  background-size: 200px 100%;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ef4444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #dc2626;
+}
+
+/* Hide scrollbar for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(239, 68, 68, 0.6) rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar hover persistence */
+.sidebar-container {
+  transition: all 0.5s ease;
+}
+
+.sidebar-container:hover .sidebar-main {
+  width: 18rem !important;
+}
+
+.sidebar-container:hover .sidebar-text {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+  width: auto !important;
+}
+
+.sidebar-container:hover .sidebar-logo-text {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+  width: auto !important;
+}
+
+.sidebar-container:hover .sidebar-justify {
+  justify-content: flex-start !important;
+}
+
+.sidebar-container:hover .sidebar-spacing {
+  column-gap: 1rem !important;
+}

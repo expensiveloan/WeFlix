@@ -1,0 +1,23 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e50914;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Play button icon -->
+  <rect x="5" y="10" width="40" height="40" rx="8" fill="url(#logoGradient)" />
+  <polygon points="20,20 20,40 35,30" fill="white" />
+  
+  <!-- WeFlix text -->
+  <text x="55" y="38" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="url(#textGradient)" letter-spacing="-0.5px">WeFlix</text>
+  
+  <!-- Streaming subtitle -->
+  <text x="55" y="50" font-family="Inter, sans-serif" font-size="8" font-weight="300" fill="#999999" letter-spacing="1px" text-transform="uppercase">STREAMING</text>
+</svg>
