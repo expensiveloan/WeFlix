@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { watchlistApi, WatchlistItem, Movie, TVShow } from '../services/api';
+import { watchlistApi, WatchlistItem, Movie, TVShow } from '../services/tmdb-direct';
 import { useAuth } from '../contexts/AuthContext';
 
 export const useWatchlist = () => {

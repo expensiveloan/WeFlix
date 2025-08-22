@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { movieApi, tvApi } from '../services/api';
-import type { Movie, TVShow, ApiResponse } from '../services/api';
+import { movieApi, tvApi } from '../services/tmdb-direct';
+import type { Movie, TVShow, ApiResponse } from '../services/tmdb-direct';
 
 export const useMovies = () => {
   const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);

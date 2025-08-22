@@ -37,7 +37,7 @@ const Trending: React.FC = () => {
   }
 
   // Convert API data to component format
-  const formatMoviesForRow = (movies: import('../services/api').Movie[]) => movies.map(movie => ({
+  const formatMoviesForRow = (movies: import('../services/tmdb-direct').Movie[]) => movies.map(movie => ({
     id: movie.id.toString(),
     title: movie.title,
     image: movie.posterPath || 'https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg?auto=compress&cs=tinysrgb&w=400&h=225&fit=crop',
@@ -45,7 +45,7 @@ const Trending: React.FC = () => {
     genre: 'Movie'
   }));
 
-  const formatTVShowsForRow = (tvShows: import('../services/api').TVShow[]) => tvShows.map(show => ({
+  const formatTVShowsForRow = (tvShows: import('../services/tmdb-direct').TVShow[]) => tvShows.map(show => ({
     id: show.id.toString(),
     title: show.title,
     image: show.posterPath || 'https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg?auto=compress&cs=tinysrgb&w=400&h=225&fit=crop',

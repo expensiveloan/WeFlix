@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Play, Plus, Check } from 'lucide-react'
+import React, { useRef, useState, useEffect } from 'react'
+import { ChevronLeft, ChevronRight, Play, Plus, Check, Hand } from 'lucide-react'
 import { useWatchlist } from '../hooks/useWatchlist'
 import MovieDetailsModal from './MovieDetailsModal'
 import TVShowDetailsModal from './TVShowDetailsModal'
@@ -28,6 +28,18 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
   const scrollRef = useRef<HTMLDivElement>(null)
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist()
   const [selectedMovie, setSelectedMovie] = useState<{ id: number; mediaType: 'movie' | 'tv' } | null>(null)
+  const [showScrollHint, setShowScrollHint] = useState(true)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
+
+  // Hide scroll hint after first interaction
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowScrollHint(false)
+    }, 3000) // Hide after 3 seconds
+    return () => clearTimeout(timer)
+  }, [])
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -37,7 +49,42 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       })
+      setShowScrollHint(false)
     }
+  }
+
+  // Touch/Mouse drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setStartX(e.pageX - (scrollRef.current?.offsetLeft || 0))
+    setScrollLeft(scrollRef.current?.scrollLeft || 0)
+    setShowScrollHint(false)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true)
+    setStartX(e.touches[0].pageX - (scrollRef.current?.offsetLeft || 0))
+    setScrollLeft(scrollRef.current?.scrollLeft || 0)
+    setShowScrollHint(false)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return
+    e.preventDefault()
+    const x = e.pageX - (scrollRef.current.offsetLeft || 0)
+    const walk = (x - startX) * 2 // Scroll speed multiplier
+    scrollRef.current.scrollLeft = scrollLeft - walk
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !scrollRef.current) return
+    const x = e.touches[0].pageX - (scrollRef.current.offsetLeft || 0)
+    const walk = (x - startX) * 2 // Scroll speed multiplier
+    scrollRef.current.scrollLeft = scrollLeft - walk
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
   }
 
   const handleWatchlistToggle = async (movie: Movie, event: React.MouseEvent) => {
@@ -95,19 +142,40 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
     <div className="mb-12">
       <h2 className="text-white text-2xl font-bold mb-6 px-4 sm:px-6 lg:px-8">{title}</h2>
       <div className="relative group">
+        {/* Touch Scroll Hint */}
+        {showScrollHint && (
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-gradient-to-l from-black/80 to-transparent px-4 py-2 rounded-l-full flex items-center space-x-2 animate-pulse lg:hidden">
+            <Hand className="h-4 w-4 text-white/70" />
+            <span className="text-white/70 text-xs font-medium">Swipe to scroll</span>
+          </div>
+        )}
+        
+        {/* Left Arrow */}
         <button
           onClick={() => scroll('left')}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/70 backdrop-blur-sm text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110 shadow-lg"
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/70 backdrop-blur-sm text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110 shadow-lg hidden lg:block"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
         <div
           ref={scrollRef}
-          className="flex space-x-3 overflow-x-hidden px-4 sm:px-6 lg:px-8 pb-4 scroll-smooth"
+          className={`flex space-x-3 overflow-x-auto px-4 sm:px-6 lg:px-8 pb-4 scroll-smooth scrollbar-hide touch-pan-x ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleDragEnd}
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
         >
           {movies.map((movie, index) => (
             <div
-              key={movie.id}
+              key={`${title}-${movie.id}-${index}`}
               className="flex-none w-52 group cursor-pointer transform transition-all duration-500 hover:scale-110 hover:z-10"
               style={{ animationDelay: `${index * 100}ms` }}
             >
@@ -215,9 +283,10 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
             </div>
           )}
         </div>
+        {/* Right Arrow */}
         <button
           onClick={() => scroll('right')}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/70 backdrop-blur-sm text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110 shadow-lg"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/70 backdrop-blur-sm text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110 shadow-lg hidden lg:block"
         >
           <ChevronRight className="h-6 w-6" />
         </button>

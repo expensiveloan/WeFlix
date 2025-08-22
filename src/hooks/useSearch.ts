@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
-import { searchApi, Movie, TVShow } from '../services/api'
+import { searchApi } from '../services/tmdb-direct'
+import type { Movie, TVShow } from '../services/tmdb-direct'
 
 export const useSearch = () => {
   const [query, setQuery] = useState('');
@@ -29,7 +30,11 @@ export const useSearch = () => {
       setLoading(true);
       setError(null);
       
+      console.log('🔍 Starting search for:', searchQuery);
+      
       const response = await searchApi.search(searchQuery, page, type);
+      
+      console.log('📊 Search response received:', response);
       
       if (page === 1) {
         setResults(response.results || []);
@@ -41,10 +46,12 @@ export const useSearch = () => {
       setTotalPages(response.totalPages || 0);
       setCurrentPage(page);
       setQuery(searchQuery);
+      
+      console.log('✅ Search state updated successfully');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Search failed';
+      console.error('❌ Search hook error:', err);
       setError(errorMessage);
-      console.error('Search error:', err);
       
       // Set empty results on error to prevent white screen
       setResults([]);

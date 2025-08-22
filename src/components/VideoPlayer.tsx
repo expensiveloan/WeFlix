@@ -73,14 +73,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, onClose, contentT
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
       {/* Header with close button */}
-      <div className="flex justify-between items-center p-4 bg-black/80">
-        <h2 className="text-white text-xl font-semibold">{title}</h2>
-        <div className="flex items-center space-x-4">
+      <div className="flex justify-between items-center p-3 lg:p-4 bg-black/80">
+        <h2 className="text-white text-lg lg:text-xl font-semibold truncate mr-4">{title}</h2>
+        <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
           {/* Source selector */}
           <select 
             value={sourceIndex} 
             onChange={(e) => handleSourceChange(parseInt(e.target.value))}
-            className="bg-gray-700 text-white px-3 py-1 rounded text-sm"
+            className="bg-gray-700 text-white px-2 lg:px-3 py-1 rounded text-xs lg:text-sm min-w-0"
           >
             {streamingSources.map((_, index) => (
               <option key={index} value={index}>
@@ -90,22 +90,23 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, onClose, contentT
           </select>
           <button
             onClick={handleClose}
-            className="text-white hover:text-gray-300 transition-colors"
+            className="text-white hover:text-gray-300 transition-colors p-1"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 lg:h-6 lg:w-6" />
           </button>
         </div>
       </div>
 
       {/* Video iframe */}
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <iframe
           src={currentSrc}
-          className="w-full h-full"
+          className="w-full h-full border-0"
           allowFullScreen
-          allow="autoplay; encrypted-media; picture-in-picture"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           onError={handleSourceError}
           title={title}
+          style={{ minHeight: '200px' }}
         />
       </div>
     </div>

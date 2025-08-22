@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
+import MobileNavbar from '../components/MobileNavbar'
 import LoadingSpinner from '../components/LoadingSpinner'
 import VideoPlayer from '../components/VideoPlayer'
 import MovieDetailsModal from '../components/MovieDetailsModal'
@@ -139,15 +140,15 @@ const Search: React.FC = () => {
   return (
     <div className="bg-black min-h-screen">
       {!isVideoPlayerActive && <Sidebar />}
-      <div className={`${isVideoPlayerActive ? '' : 'ml-24'} p-8`}>
-        <h1 className="text-white text-4xl font-bold mb-8">Search</h1>
+      <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} p-4 lg:p-8 pb-20 lg:pb-8`}>
+        <h1 className="text-white text-2xl lg:text-4xl font-bold mb-6 lg:mb-8">Search</h1>
         
         {/* Enhanced Search Input */}
-        <div className="relative max-w-4xl mb-12">
+        <div className="relative max-w-4xl mb-8 lg:mb-12">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-purple-600/20 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl border border-gray-700 group-focus-within:border-red-500/50 transition-all duration-300 shadow-2xl">
-              <SearchIcon className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-6 w-6 group-focus-within:text-red-400 transition-colors" />
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-purple-600/20 rounded-xl lg:rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl lg:rounded-2xl border border-gray-700 group-focus-within:border-red-500/50 transition-all duration-300 shadow-2xl">
+              <SearchIcon className="absolute left-4 lg:left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 lg:h-6 lg:w-6 group-focus-within:text-red-400 transition-colors" />
               <input
                 type="text"
                 value={searchInput}
@@ -160,15 +161,15 @@ const Search: React.FC = () => {
                 }}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchInput)}
                 placeholder="Search for movies, TV shows, actors, genres..."
-                className="w-full pl-16 pr-16 py-6 bg-transparent text-white text-lg placeholder-gray-400 focus:outline-none rounded-2xl overflow-hidden text-ellipsis"
+                className="w-full pl-12 lg:pl-16 pr-12 lg:pr-16 py-4 lg:py-6 bg-transparent text-white text-base lg:text-lg placeholder-gray-400 focus:outline-none rounded-xl lg:rounded-2xl overflow-hidden text-ellipsis"
                 maxLength={100}
               />
               {searchInput && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all duration-200 hover:scale-110"
+                  className="absolute right-4 lg:right-6 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all duration-200 hover:scale-110"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5 lg:h-6 lg:w-6" />
                 </button>
               )}
             </div>
@@ -271,7 +272,7 @@ const Search: React.FC = () => {
                       <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="font-semibold text-sm mb-1">{item.title}</div>
                         <div className="text-xs text-gray-300 capitalize">
-                          {item.mediaType} • ⭐ {item.voteAverage.toFixed(1)}
+                          {item.mediaType} • ⭐ {item.voteAverage ? item.voteAverage.toFixed(1) : 'N/A'}
                         </div>
                       </div>
                     </div>
@@ -342,6 +343,8 @@ const Search: React.FC = () => {
           )}
         </>
       )}
+      
+      <MobileNavbar />
     </div>
   )
 }

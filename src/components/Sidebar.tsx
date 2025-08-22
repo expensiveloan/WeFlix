@@ -15,7 +15,7 @@ import wishlistIcon from '../assets/wishlist.png'
 const Sidebar: React.FC = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
-  const [userAvatar, setUserAvatar] = useState('default')
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
   const { signOut, user } = useAuth()
@@ -23,7 +23,9 @@ const Sidebar: React.FC = () => {
 
   useEffect(() => {
     const loadUserAvatar = async () => {
-      if (!user) return
+      if (!user) {
+        return
+      }
 
       try {
         const { data } = await supabase
@@ -34,9 +36,12 @@ const Sidebar: React.FC = () => {
 
         if (data?.settings?.avatar) {
           setUserAvatar(data.settings.avatar)
+        } else {
+          setUserAvatar('default')
         }
       } catch {
         // Use default avatar if no settings found
+        setUserAvatar('default')
       }
     }
 
@@ -120,12 +125,14 @@ const Sidebar: React.FC = () => {
               }`}
             >
               <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
-                showProfileMenu 
-                  ? `${getAvatarDisplay(userAvatar).bg} shadow-lg shadow-red-500/25 scale-110` 
-                  : `${getAvatarDisplay(userAvatar).bg} hover:shadow-lg hover:shadow-red-500/20`
+                userAvatar ? (
+                  showProfileMenu 
+                    ? `${getAvatarDisplay(userAvatar).bg} shadow-lg shadow-red-500/25 scale-110` 
+                    : `${getAvatarDisplay(userAvatar).bg} hover:shadow-lg hover:shadow-red-500/20`
+                ) : 'bg-gray-600 animate-pulse'
               }`}>
                 <span className="text-white text-sm font-bold">
-                  {getAvatarDisplay(userAvatar).content}
+                  {userAvatar ? getAvatarDisplay(userAvatar).content : ''}
                 </span>
               </div>
               
@@ -139,7 +146,7 @@ const Sidebar: React.FC = () => {
             </button>
 
             {/* Profile Dropdown */}
-            {showProfileMenu && (
+            {showProfileMenu && userAvatar && (
               <div className="absolute bottom-full mb-3 left-3 right-3 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-2xl border border-gray-700/50 backdrop-blur-xl overflow-hidden animate-in slide-in-from-bottom-2 fade-in duration-200">
                 {/* User Info Header */}
                 <div className="px-4 py-3 border-b border-gray-700/30">

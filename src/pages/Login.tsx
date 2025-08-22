@@ -50,20 +50,20 @@ const Login: React.FC = () => {
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-600/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
-        <div className="absolute top-8 left-8 z-10">
+        <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-10">
           <Link to="/" className="flex items-center space-x-2 group">
             <img 
               src="/src/assets/logo.svg" 
               alt="WeFlix" 
-              className="h-16 w-auto filter drop-shadow-lg group-hover:scale-105 transition-transform"
+              className="h-12 lg:h-16 w-auto filter drop-shadow-lg group-hover:scale-105 transition-transform"
             />
           </Link>
         </div>
 
-        <div className="relative z-10 bg-gradient-to-b from-gray-900/90 to-black/90 backdrop-blur-xl p-8 md:p-12 rounded-3xl shadow-2xl border border-gray-700/50 w-full max-w-md mx-4">
-          <div className="text-center mb-8">
-            <h1 className="text-white text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Welcome Back</h1>
-            <p className="text-gray-400">Sign in to continue your journey</p>
+        <div className="relative z-10 bg-gradient-to-b from-gray-900/90 to-black/90 backdrop-blur-xl p-6 lg:p-8 xl:p-12 rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-700/50 w-full max-w-md mx-4">
+          <div className="text-center mb-6 lg:mb-8">
+            <h1 className="text-white text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Welcome Back</h1>
+            <p className="text-gray-400 text-sm lg:text-base">Sign in to continue your journey</p>
           </div>
           
           {error && (
@@ -72,20 +72,20 @@ const Login: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             <div className="space-y-2">
               <label htmlFor="email" className="block text-gray-300 text-sm font-medium">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
                 <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-gray-800/50 backdrop-blur-sm text-white rounded-xl border border-gray-600/50 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-300"
+                  className="w-full pl-10 lg:pl-12 pr-4 py-3 lg:py-4 bg-gray-800/50 backdrop-blur-sm text-white rounded-xl border border-gray-600/50 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-300 text-sm lg:text-base"
                   placeholder="Enter your email"
                 />
               </div>
@@ -96,22 +96,22 @@ const Login: React.FC = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-12 py-4 bg-gray-800/50 backdrop-blur-sm text-white rounded-xl border border-gray-600/50 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-300"
+                  className="w-full pl-10 lg:pl-12 pr-10 lg:pr-12 py-3 lg:py-4 bg-gray-800/50 backdrop-blur-sm text-white rounded-xl border border-gray-600/50 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 transition-all duration-300 text-sm lg:text-base"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-4 w-4 lg:h-5 lg:w-5" /> : <Eye className="h-4 w-4 lg:h-5 lg:w-5" />}
                 </button>
               </div>
             </div>
@@ -119,14 +119,14 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-semibold text-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] shadow-lg flex items-center justify-center space-x-2"
+              className="group w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 lg:py-4 rounded-xl font-semibold text-base lg:text-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] shadow-lg flex items-center justify-center space-x-2"
             >
               <span>{loading ? 'Signing In...' : 'Sign In'}</span>
-              {!loading && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+              {!loading && <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
 
-          <div className="mt-8 text-center space-y-4">
+          <div className="mt-6 lg:mt-8 text-center space-y-4">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-700"></div>
@@ -137,7 +137,7 @@ const Login: React.FC = () => {
             </div>
             <Link 
               to="/signup" 
-              className="block w-full bg-white/10 backdrop-blur-sm text-white py-3 rounded-xl font-medium hover:bg-white/20 transition-all duration-300 border border-white/20"
+              className="block w-full bg-white/10 backdrop-blur-sm text-white py-2.5 lg:py-3 rounded-xl font-medium hover:bg-white/20 transition-all duration-300 border border-white/20 text-sm lg:text-base"
             >
               Create Account
             </Link>

@@ -63,16 +63,16 @@ const NetflixHero: React.FC = () => {
     return streamingSources[0];
   };
   
-  // Auto-rotate every 8 seconds
+  // Auto-rotate every 8 seconds (pause when video player is active)
   useEffect(() => {
-    if (featuredMovies.length <= 1) return;
+    if (featuredMovies.length <= 1 || showVideoPlayer) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
     }, 8000);
     
     return () => clearInterval(interval);
-  }, [featuredMovies.length]);
+  }, [featuredMovies.length, showVideoPlayer]);
   
   const goToPrevious = () => {
     if (isTransitioning) return;

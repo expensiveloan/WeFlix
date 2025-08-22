@@ -172,6 +172,26 @@
   scrollbar-color: rgba(239, 68, 68, 0.6) rgba(0, 0, 0, 0.1);
 }
 
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* Touch scrolling improvements */
+.touch-pan-x {
+  touch-action: pan-x;
+}
+
+/* Smooth momentum scrolling for iOS */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Sidebar hover persistence */
 .sidebar-container {
   transition: all 0.5s ease;

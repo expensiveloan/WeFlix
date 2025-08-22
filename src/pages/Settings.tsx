@@ -140,12 +140,12 @@ const Settings: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex">
       <Sidebar />
       
-      <div className="flex-1 lg:ml-24 p-8">
+      <div className="flex-1 lg:ml-24 p-4 lg:p-8 pb-20 lg:pb-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-            <p className="text-gray-400">Manage your account and preferences</p>
+          <div className="mb-6 lg:mb-8">
+            <h1 className="text-2xl lg:text-4xl font-bold text-white mb-2">Settings</h1>
+            <p className="text-sm lg:text-base text-gray-400">Manage your account preferences and settings</p>
           </div>
 
           {/* Save Message */}
@@ -155,12 +155,12 @@ const Settings: React.FC = () => {
             </div>
           )}
 
-          <div className="space-y-8">
-            {/* Account Information */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-              <div className="flex items-center space-x-3 mb-6">
-                <User className="h-6 w-6 text-red-400" />
-                <h2 className="text-2xl font-semibold text-white">Account Information</h2>
+          <div className="grid gap-6 lg:gap-8">
+            {/* Profile Section */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-gray-700/50">
+              <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+                <User className="h-5 w-5 lg:h-6 lg:w-6 text-blue-400" />
+                <h2 className="text-xl lg:text-2xl font-semibold text-white">Profile</h2>
               </div>
               
               {/* Avatar Selection */}
@@ -233,17 +233,17 @@ const Settings: React.FC = () => {
             </div>
 
             {/* Playback Settings */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-              <div className="flex items-center space-x-3 mb-6">
-                <Monitor className="h-6 w-6 text-red-400" />
-                <h2 className="text-2xl font-semibold text-white">Playback Settings</h2>
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-gray-700/50">
+              <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+                <Monitor className="h-5 w-5 lg:h-6 lg:w-6 text-green-400" />
+                <h2 className="text-xl lg:text-2xl font-semibold text-white">Playback</h2>
               </div>
               
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-white font-medium">Autoplay</h3>
-                    <p className="text-gray-400 text-sm">Automatically play the next episode</p>
+                  <div className="flex-1 min-w-0 mr-4">
+                    <h3 className="text-white font-medium text-sm lg:text-base">Autoplay</h3>
+                    <p className="text-gray-400 text-xs lg:text-sm">Automatically play next episode</p>
                   </div>
                   <button
                     onClick={() => setSettings(prev => ({ ...prev, autoplay: !prev.autoplay }))}
@@ -260,11 +260,11 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-white font-medium mb-2">Video Quality</label>
+                  <label className="block text-white font-medium mb-2 text-sm lg:text-base">Video Quality</label>
                   <select
                     value={settings.quality}
                     onChange={(e) => setSettings(prev => ({ ...prev, quality: e.target.value as UserSettings['quality'] }))}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 lg:px-4 py-2 lg:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white text-sm lg:text-base focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="auto">Auto</option>
                     <option value="high">High (1080p)</option>
@@ -276,19 +276,19 @@ const Settings: React.FC = () => {
             </div>
 
             {/* Language & Audio */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-              <div className="flex items-center space-x-3 mb-6">
-                <Globe className="h-6 w-6 text-red-400" />
-                <h2 className="text-2xl font-semibold text-white">Language & Audio</h2>
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-gray-700/50">
+              <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+                <Globe className="h-5 w-5 lg:h-6 lg:w-6 text-yellow-400" />
+                <h2 className="text-xl lg:text-2xl font-semibold text-white">Language & Audio</h2>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-white font-medium mb-2">Interface Language</label>
+                  <label className="block text-white font-medium mb-2 text-sm lg:text-base">Interface Language</label>
                   <select
                     value={settings.language}
                     onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    className="w-full px-3 lg:px-4 py-2 lg:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white text-sm lg:text-base focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="en">English</option>
                     <option value="es">Español</option>
@@ -299,11 +299,11 @@ const Settings: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-white font-medium mb-2">Subtitle Language</label>
+                  <label className="block text-white font-medium mb-2 text-sm lg:text-base">Audio Language</label>
                   <select
-                    value={settings.subtitle_language}
-                    onChange={(e) => setSettings(prev => ({ ...prev, subtitle_language: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    value={settings.audio_language}
+                    onChange={(e) => setSettings(prev => ({ ...prev, audio_language: e.target.value }))}
+                    className="w-full px-3 lg:px-4 py-2 lg:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white text-sm lg:text-base focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
                     <option value="off">Off</option>
                     <option value="en">English</option>
@@ -317,18 +317,18 @@ const Settings: React.FC = () => {
               </div>
             </div>
 
-            {/* Privacy & Security */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-              <div className="flex items-center space-x-3 mb-6">
-                <Shield className="h-6 w-6 text-red-400" />
-                <h2 className="text-2xl font-semibold text-white">Privacy & Security</h2>
+            {/* Privacy & Notifications */}
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-gray-700/50">
+              <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+                <Shield className="h-5 w-5 lg:h-6 lg:w-6 text-purple-400" />
+                <h2 className="text-xl lg:text-2xl font-semibold text-white">Privacy & Notifications</h2>
               </div>
               
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-white font-medium">Email Notifications</h3>
-                    <p className="text-gray-400 text-sm">Receive updates about new content and features</p>
+                  <div className="flex-1 min-w-0 mr-4">
+                    <h3 className="text-white font-medium text-sm lg:text-base">Email Notifications</h3>
+                    <p className="text-gray-400 text-xs lg:text-sm">Receive updates about new content and features</p>
                   </div>
                   <button
                     onClick={() => setSettings(prev => ({ ...prev, notifications: !prev.notifications }))}
@@ -345,9 +345,9 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-white font-medium">Mature Content</h3>
-                    <p className="text-gray-400 text-sm">Show content rated for mature audiences</p>
+                  <div className="flex-1 min-w-0 mr-4">
+                    <h3 className="text-white font-medium text-sm lg:text-base">Mature Content</h3>
+                    <p className="text-gray-400 text-xs lg:text-sm">Show content rated for mature audiences</p>
                   </div>
                   <button
                     onClick={() => setSettings(prev => ({ ...prev, mature_content: !prev.mature_content }))}
@@ -366,19 +366,19 @@ const Settings: React.FC = () => {
             </div>
 
             {/* Actions */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-              <div className="flex items-center space-x-3 mb-6">
-                <Lock className="h-6 w-6 text-red-400" />
-                <h2 className="text-2xl font-semibold text-white">Account Actions</h2>
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-gray-700/50">
+              <div className="flex items-center space-x-3 mb-4 lg:mb-6">
+                <Lock className="h-5 w-5 lg:h-6 lg:w-6 text-red-400" />
+                <h2 className="text-xl lg:text-2xl font-semibold text-white">Account Actions</h2>
               </div>
               
               <div className="space-y-4">
                 <button
                   onClick={saveSettings}
                   disabled={loading}
-                  className="w-full md:w-auto flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium text-sm lg:text-base transition-colors"
                 >
-                  <Save className="h-5 w-5" />
+                  <Save className="h-4 w-4 lg:h-5 lg:w-5" />
                   <span>{loading ? 'Saving...' : 'Save Settings'}</span>
                 </button>
                 

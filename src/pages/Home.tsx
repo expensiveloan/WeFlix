@@ -23,7 +23,7 @@ const Home: React.FC = () => {
     return (
       <div className="bg-black min-h-screen">
         {!isVideoPlayerActive && <Sidebar />}
-        <div className={`${isVideoPlayerActive ? '' : 'ml-24'} flex items-center justify-center min-h-screen`}>
+        <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} flex items-center justify-center min-h-screen`}>
           <LoadingSpinner />
         </div>
       </div>
@@ -45,7 +45,7 @@ const Home: React.FC = () => {
   }
 
   // Convert API data to component format
-  const formatMoviesForRow = (movies: import('../services/api').Movie[]) => movies.map(movie => ({
+  const formatMoviesForRow = (movies: import('../services/tmdb-direct').Movie[]) => movies.map(movie => ({
     id: movie.id.toString(),
     title: movie.title,
     image: movie.posterPath || 'https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg?auto=compress&cs=tinysrgb&w=400&h=225&fit=crop',
@@ -54,7 +54,8 @@ const Home: React.FC = () => {
   }));
 
   // Use real data or fallback
-  const displayTrendingMovies = trendingMovies.length > 0 ? formatMoviesForRow(trendingMovies) : [
+  // Format trending movies for display
+  const formattedTrendingMovies = formatMoviesForRow(trendingMovies).length > 0 ? formatMoviesForRow(trendingMovies) : [
     {
       id: '1',
       title: 'Stranger Things',
@@ -100,23 +101,38 @@ const Home: React.FC = () => {
   ]
 
 
-  const displayPopularMovies = popularMovies.length > 0 ? formatMoviesForRow(popularMovies) : displayTrendingMovies;
-  const displayTopRatedMovies = topRatedMovies.length > 0 ? formatMoviesForRow(topRatedMovies) : displayTrendingMovies;
-  const displayUpcomingMovies = upcomingMovies.length > 0 ? formatMoviesForRow(upcomingMovies) : displayTrendingMovies;
+  // Remove unused display variables - using movies directly in MovieRow components
 
   return (
     <div className="bg-black min-h-screen">
       {!isVideoPlayerActive && <Sidebar />}
-      {!isVideoPlayerActive && <MobileNavbar />}
-      <div className={isVideoPlayerActive ? '' : 'ml-0 lg:ml-20'}>
+      <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} bg-black min-h-screen`}>
         <NetflixHero />
-        <div className="px-4 sm:px-6 lg:px-8 pb-24 lg:pb-20 -mt-32 relative z-20">
-          <MovieRow title="Trending Now" movies={displayTrendingMovies} />
-          <MovieRow title="Popular Movies" movies={displayPopularMovies} />
-          <MovieRow title="Top Rated" movies={displayTopRatedMovies} />
-          <MovieRow title="Coming Soon" movies={displayUpcomingMovies} />
+        
+        <div className="px-4 lg:px-8 pb-20 lg:pb-8 space-y-6 lg:space-y-8">
+          <MovieRow 
+            title="Trending Now" 
+            movies={formattedTrendingMovies}
+          />
+          
+          <MovieRow 
+            title="Popular Movies" 
+            movies={formatMoviesForRow(popularMovies)}
+          />
+          
+          <MovieRow 
+            title="Top Rated" 
+            movies={formatMoviesForRow(topRatedMovies)}
+          />
+          
+          <MovieRow 
+            title="Coming Soon" 
+            movies={formatMoviesForRow(upcomingMovies)}
+          />
         </div>
       </div>
+      
+      <MobileNavbar />
     </div>
   )
 }

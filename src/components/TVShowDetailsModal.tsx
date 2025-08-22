@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { X, Play, Plus, Check, Star, Calendar, Clock, Users, Tv } from 'lucide-react'
-import { tvApi } from '../services/api'
+import { tvApi } from '../services/tmdb-direct'
 import { useWatchlist } from '../hooks/useWatchlist'
 import VideoPlayer from './VideoPlayer'
 

@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import Sidebar from '../components/Sidebar'
+import MobileNavbar from '../components/MobileNavbar'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MovieRow from '../components/MovieRow'
 import ViewAllModal from '../components/ViewAllModal'
 import VideoPlayer from '../components/VideoPlayer'
 import { useTVShows } from '../hooks/useMovies'
+import { useVideoPlayer } from '../contexts/VideoPlayerContext'
 
 const TVShows: React.FC = () => {
   const { 
@@ -17,6 +19,8 @@ const TVShows: React.FC = () => {
     loading, 
     error 
   } = useTVShows()
+  
+  const { isVideoPlayerActive } = useVideoPlayer()
 
   interface Movie {
     id: string
@@ -69,8 +73,8 @@ const TVShows: React.FC = () => {
   if (loading) {
     return (
       <div className="bg-black min-h-screen">
-        <Sidebar />
-        <div className="ml-24 flex items-center justify-center min-h-screen">
+        {!isVideoPlayerActive && <Sidebar />}
+        <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} flex items-center justify-center min-h-screen`}>
           <LoadingSpinner />
         </div>
       </div>
@@ -80,10 +84,10 @@ const TVShows: React.FC = () => {
   if (error) {
     return (
       <div className="bg-black min-h-screen">
-        <Sidebar />
-        <div className="ml-24 flex items-center justify-center min-h-screen">
+        {!isVideoPlayerActive && <Sidebar />}
+        <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} flex items-center justify-center min-h-screen`}>
           <div className="text-white text-center">
-            <h2 className="text-2xl font-bold mb-4">Error Loading TV Shows</h2>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">Error Loading TV Shows</h2>
             <p className="text-gray-400">{error}</p>
           </div>
         </div>
@@ -92,7 +96,7 @@ const TVShows: React.FC = () => {
   }
 
   // Convert API data to component format
-  const formatTVShowsForRow = (tvShows: import('../services/api').TVShow[]) => tvShows.map(show => ({
+  const formatTVShowsForRow = (tvShows: import('../services/tmdb-direct').TVShow[]) => tvShows.map(show => ({
     id: show.id.toString(),
     title: show.title,
     image: show.posterPath || 'https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg?auto=compress&cs=tinysrgb&w=400&h=225&fit=crop',
@@ -110,14 +114,14 @@ const TVShows: React.FC = () => {
 
   return (
     <div className="bg-black min-h-screen">
-      <Sidebar />
-      <div className="ml-24 p-8">
-        <h1 className="text-white text-4xl font-bold mb-8">TV Shows</h1>
-        <div className="text-white/80 mb-8">
-          <p>Explore the best TV series and shows.</p>
+      {!isVideoPlayerActive && <Sidebar />}
+      <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} p-4 lg:p-8 pb-20 lg:pb-8`}>
+        <h1 className="text-white text-2xl lg:text-4xl font-bold mb-6 lg:mb-8">TV Shows</h1>
+        <div className="text-white/80 mb-6 lg:mb-8">
+          <p className="text-sm lg:text-base">Explore the best TV series and shows.</p>
         </div>
         
-        <div className="space-y-8">
+        <div className="space-y-6 lg:space-y-8">
           {displayTrendingTVShows.length > 0 && (
             <MovieRow title="Trending TV Shows" movies={displayTrendingTVShows} />
           )}
@@ -148,6 +152,8 @@ const TVShows: React.FC = () => {
           )}
         </div>
       </div>
+      
+      <MobileNavbar />
 
       {/* View All Modal */}
       <ViewAllModal
