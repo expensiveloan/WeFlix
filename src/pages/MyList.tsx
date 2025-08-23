@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import MobileNavbar from '../components/MobileNavbar'
 import LoadingSpinner from '../components/LoadingSpinner'
+import MovieDetailsModal from '../components/MovieDetailsModal'
+import TVShowDetailsModal from '../components/TVShowDetailsModal'
+import VideoPlayer from '../components/VideoPlayer'
 import { useWatchlist } from '../hooks/useWatchlist'
 import { useVideoPlayer } from '../contexts/VideoPlayerContext'
 import { Trash2, Play, Info } from 'lucide-react'
@@ -9,6 +12,13 @@ import { Trash2, Play, Info } from 'lucide-react'
 const MyList: React.FC = () => {
   const { watchlist, loading, error, removeFromWatchlist } = useWatchlist()
   const { isVideoPlayerActive } = useVideoPlayer()
+  const [selectedItem, setSelectedItem] = useState<{ id: number; mediaType: 'movie' | 'tv' } | null>(null)
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false)
+  const [currentPlayingItem, setCurrentPlayingItem] = useState<{
+    media_id: number;
+    media_type: 'movie' | 'tv';
+    title: string;
+  } | null>(null)
 
   if (loading) {
     return (
@@ -43,11 +53,31 @@ const MyList: React.FC = () => {
     );
   }
 
-  const handleRemoveFromWatchlist = async (itemId: number, mediaType: 'movie' | 'tv') => {
+  const handleRemoveFromWatchlist = async (itemId: number, mediaType: 'movie' | 'tv', event: React.MouseEvent) => {
+    event.stopPropagation()
     try {
       await removeFromWatchlist(itemId, mediaType)
     } catch (err) {
       console.error('Failed to remove from watchlist:', err)
+    }
+  }
+
+  const handleShowDetails = (itemId: number, mediaType: 'movie' | 'tv', event: React.MouseEvent) => {
+    event.stopPropagation()
+    setSelectedItem({ id: itemId, mediaType })
+  }
+
+  const handlePlayItem = (item: { media_id: number; media_type: 'movie' | 'tv'; title: string }, event: React.MouseEvent) => {
+    event.stopPropagation()
+    setCurrentPlayingItem(item)
+    setShowVideoPlayer(true)
+  }
+
+  const getStreamUrl = (itemId: number, mediaType: 'movie' | 'tv'): string => {
+    if (mediaType === 'movie') {
+      return `https://moviesapi.club/movie/${itemId}`
+    } else {
+      return `https://vidsrc.me/embed/tv?tmdb=${itemId}&season=1&episode=1`
     }
   }
 
@@ -97,8 +127,8 @@ const MyList: React.FC = () => {
                       {/* Top actions */}
                       <div className="p-2 lg:p-3 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button
-                          onClick={() => handleRemoveFromWatchlist(item.media_id, item.media_type)}
-                          className="bg-red-600 hover:bg-red-700 text-white p-1.5 lg:p-2 rounded-full transition-colors"
+                          onClick={(e) => handleRemoveFromWatchlist(item.media_id, item.media_type, e)}
+                          className="bg-red-600 hover:bg-red-700 text-white p-1.5 lg:p-2 rounded-full transition-colors touch-manipulation"
                           title="Remove from watchlist"
                         >
                           <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
@@ -111,14 +141,18 @@ const MyList: React.FC = () => {
                         <div className="text-xs text-gray-300 mb-2 lg:mb-3 capitalize">
                           {item.media_type} • ⭐ {item.vote_average?.toFixed(1) || 'N/A'}
                         </div>
-                        <div className="flex space-x-1 lg:space-x-2">
-                          <button className="bg-white text-black px-2 lg:px-3 py-1 rounded text-xs font-medium hover:bg-gray-200 transition-colors flex items-center">
-                            <Play className="h-2 w-2 lg:h-3 lg:w-3 mr-1" />
-                            <span className="hidden sm:inline">Play</span>
+                        <div className="flex justify-center space-x-2 lg:space-x-3">
+                          <button 
+                            onClick={(e) => handlePlayItem(item, e)}
+                            className="bg-red-600/90 backdrop-blur-sm text-white p-2 lg:p-3 rounded-full hover:bg-red-700 transition-all duration-300 transform hover:scale-110 shadow-lg touch-manipulation"
+                          >
+                            <Play className="h-4 w-4 lg:h-5 lg:w-5 fill-current" />
                           </button>
-                          <button className="bg-gray-600 text-white px-2 lg:px-3 py-1 rounded text-xs font-medium hover:bg-gray-500 transition-colors flex items-center">
-                            <Info className="h-2 w-2 lg:h-3 lg:w-3 mr-1" />
-                            <span className="hidden sm:inline">Info</span>
+                          <button 
+                            onClick={(e) => handleShowDetails(item.media_id, item.media_type, e)}
+                            className="bg-gray-600/90 backdrop-blur-sm text-white p-2 lg:p-3 rounded-full hover:bg-gray-700 transition-all duration-300 transform hover:scale-110 shadow-lg touch-manipulation"
+                          >
+                            <Info className="h-4 w-4 lg:h-5 lg:w-5" />
                           </button>
                         </div>
                       </div>
@@ -130,6 +164,39 @@ const MyList: React.FC = () => {
           </>
         )}
       </div>
+      
+      {/* Movie/TV Show Details Modal */}
+      {selectedItem && (
+        <>
+          {selectedItem.mediaType === 'movie' ? (
+            <MovieDetailsModal
+              isOpen={selectedItem !== null}
+              onClose={() => setSelectedItem(null)}
+              movieId={selectedItem.id}
+            />
+          ) : (
+            <TVShowDetailsModal
+              isOpen={selectedItem !== null}
+              onClose={() => setSelectedItem(null)}
+              showId={selectedItem.id}
+            />
+          )}
+        </>
+      )}
+      
+      {/* Video Player */}
+      {showVideoPlayer && currentPlayingItem && (
+        <VideoPlayer
+          src={getStreamUrl(currentPlayingItem.media_id, currentPlayingItem.media_type)}
+          title={currentPlayingItem.title}
+          onClose={() => {
+            setShowVideoPlayer(false)
+            setCurrentPlayingItem(null)
+          }}
+          contentType={currentPlayingItem.media_type}
+          tmdbId={currentPlayingItem.media_id}
+        />
+      )}
       
       <MobileNavbar />
     </div>

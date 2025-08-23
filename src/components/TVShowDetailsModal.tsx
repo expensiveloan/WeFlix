@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Play, Plus, Check, Star, Calendar, Clock, Users, Tv } from 'lucide-react'
+import { X, Play, Plus, Check, Star, Calendar, Clock, Users, Tv, Loader2 } from 'lucide-react'
 import { tvApi } from '../services/tmdb-direct'
 import { useWatchlist } from '../hooks/useWatchlist'
 import VideoPlayer from './VideoPlayer'
@@ -8,6 +8,8 @@ interface TVShowDetailsModalProps {
   isOpen: boolean
   onClose: () => void
   showId: number | null
+  initialSeasonNumber?: number
+  initialEpisodeNumber?: number
 }
 
 interface TVShowDetails {
@@ -52,22 +54,24 @@ interface Season {
   airDate: string
 }
 
-const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose, showId }) => {
+const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose, showId, initialSeasonNumber, initialEpisodeNumber }) => {
   const [details, setDetails] = useState<TVShowDetails | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
-  const [selectedSeason, setSelectedSeason] = useState(1)
-  const [selectedEpisode, setSelectedEpisode] = useState(1)
+  const [selectedSeason, setSelectedSeason] = useState(initialSeasonNumber || 1)
+  const [selectedEpisode, setSelectedEpisode] = useState(initialEpisodeNumber || 1)
+  const [watchlistLoading, setWatchlistLoading] = useState(false)
   
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist()
   const isInUserWatchlist = details ? isInWatchlist(details.id, 'tv') : false
 
 
   const handleWatchlistToggle = async () => {
-    if (!details) return
+    if (!details || watchlistLoading) return
     
     try {
+      setWatchlistLoading(true)
       if (isInUserWatchlist) {
         await removeFromWatchlist(details.id, 'tv')
       } else {
@@ -90,6 +94,8 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
       }
     } catch (error) {
       console.error('Error toggling watchlist:', error)
+    } finally {
+      setWatchlistLoading(false)
     }
   }
 
@@ -150,8 +156,8 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-      <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto border border-gray-700/50 shadow-2xl transform animate-scaleIn">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 lg:p-4 animate-fadeIn">
+      <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto scroll-smooth overscroll-contain border border-gray-700/50 shadow-2xl transform animate-scaleIn">
         {loading && (
           <div className="flex flex-col items-center justify-center h-96 space-y-4">
             <div className="relative">
@@ -193,10 +199,10 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent rounded-t-lg" />
               
-              {/* Close button */}
+              {/* Close button - Enhanced for mobile */}
               <button
                 onClick={onClose}
-                className="absolute top-6 right-6 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 group border border-white/10"
+                className="absolute top-3 right-3 lg:top-6 lg:right-6 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full p-3 lg:p-3 transition-all duration-300 hover:scale-110 group border border-white/10 z-10 touch-manipulation"
               >
                 <X className="w-6 h-6 text-white group-hover:text-red-400 transition-colors" />
               </button>
@@ -248,13 +254,20 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
                 
                 <button
                   onClick={handleWatchlistToggle}
-                  className={`flex items-center gap-3 px-8 py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg ${
+                  disabled={watchlistLoading}
+                  className={`flex items-center gap-3 px-8 py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                     isInUserWatchlist 
                       ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white hover:shadow-green-500/25' 
                       : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white hover:shadow-gray-500/25'
                   }`}
                 >
-                  {isInUserWatchlist ? <Check className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+                  {watchlistLoading ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : isInUserWatchlist ? (
+                    <Check className="w-6 h-6" />
+                  ) : (
+                    <Plus className="w-6 h-6" />
+                  )}
                   {isInUserWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                 </button>
               </div>

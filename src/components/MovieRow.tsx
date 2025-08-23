@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Play, Plus, Check, Hand } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Plus, Check, Hand, Loader2 } from 'lucide-react'
 import { useWatchlist } from '../hooks/useWatchlist'
 import MovieDetailsModal from './MovieDetailsModal'
 import TVShowDetailsModal from './TVShowDetailsModal'
@@ -15,23 +15,28 @@ interface Movie {
   overview?: string
   releaseDate?: string
   firstAirDate?: string
+  seasonNumber?: number
+  episodeNumber?: number
+  tmdbId?: number
 }
 
 interface MovieRowProps {
-  title: string
+  title: string | React.ReactNode
   movies: Movie[]
   showViewAll?: boolean
   onViewAll?: () => void
+  hideWatchlistButton?: boolean
 }
 
-const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false, onViewAll }) => {
+const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false, onViewAll, hideWatchlistButton = false }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist()
-  const [selectedMovie, setSelectedMovie] = useState<{ id: number; mediaType: 'movie' | 'tv' } | null>(null)
+  const [selectedMovie, setSelectedMovie] = useState<{ id: number; mediaType: 'movie' | 'tv'; seasonNumber?: number; episodeNumber?: number; tmdbId?: number } | null>(null)
   const [showScrollHint, setShowScrollHint] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
+  const [loadingWatchlist, setLoadingWatchlist] = useState<string | null>(null)
 
   // Hide scroll hint after first interaction
   useEffect(() => {
@@ -78,6 +83,7 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || !scrollRef.current) return
+    e.preventDefault() // Prevent default touch behavior
     const x = e.touches[0].pageX - (scrollRef.current.offsetLeft || 0)
     const walk = (x - startX) * 2 // Scroll speed multiplier
     scrollRef.current.scrollLeft = scrollLeft - walk
@@ -93,48 +99,57 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
     const mediaType = movie.mediaType || 'movie'
     const movieId = parseInt(movie.id, 10)
     const isInList = isInWatchlist(movieId, mediaType)
+    const loadingKey = `${movieId}-${mediaType}`
     
-    if (isInList) {
-      await removeFromWatchlist(movieId, mediaType)
-    } else {
-      const watchlistItem = mediaType === 'movie' ? {
-        id: movieId,
-        title: movie.title,
-        originalTitle: movie.title,
-        posterPath: movie.image,
-        backdropPath: movie.image,
-        overview: movie.overview || '',
-        releaseDate: movie.releaseDate || '',
-        voteAverage: movie.voteAverage || 0,
-        voteCount: 0,
-        popularity: 0,
-        adult: false,
-        genreIds: [],
-        originalLanguage: 'en',
-        video: false,
-        mediaType: 'movie' as const
-      } : {
-        id: movieId,
-        title: movie.title,
-        originalTitle: movie.title,
-        name: movie.title,
-        originalName: movie.title,
-        posterPath: movie.image,
-        backdropPath: movie.image,
-        overview: movie.overview || '',
-        releaseDate: movie.releaseDate || '',
-        firstAirDate: movie.firstAirDate || '',
-        voteAverage: movie.voteAverage || 0,
-        voteCount: 0,
-        popularity: 0,
-        adult: false,
-        genreIds: [],
-        originalLanguage: 'en',
-        video: false,
-        originCountry: [],
-        mediaType: 'tv' as const
+    try {
+      setLoadingWatchlist(loadingKey)
+      
+      if (isInList) {
+        await removeFromWatchlist(movieId, mediaType)
+      } else {
+        const watchlistItem = mediaType === 'movie' ? {
+          id: movieId,
+          title: movie.title,
+          originalTitle: movie.title,
+          posterPath: movie.image,
+          backdropPath: movie.image,
+          overview: movie.overview || '',
+          releaseDate: movie.releaseDate || '',
+          voteAverage: movie.voteAverage || 0,
+          voteCount: 0,
+          popularity: 0,
+          adult: false,
+          genreIds: [],
+          originalLanguage: 'en',
+          video: false,
+          mediaType: 'movie' as const
+        } : {
+          id: movieId,
+          title: movie.title,
+          originalTitle: movie.title,
+          name: movie.title,
+          originalName: movie.title,
+          posterPath: movie.image,
+          backdropPath: movie.image,
+          overview: movie.overview || '',
+          releaseDate: movie.releaseDate || '',
+          firstAirDate: movie.firstAirDate || '',
+          voteAverage: movie.voteAverage || 0,
+          voteCount: 0,
+          popularity: 0,
+          adult: false,
+          genreIds: [],
+          originalLanguage: 'en',
+          video: false,
+          originCountry: [],
+          mediaType: 'tv' as const
+        }
+        await addToWatchlist(watchlistItem)
       }
-      await addToWatchlist(watchlistItem)
+    } catch (error) {
+      console.error('Error toggling watchlist:', error)
+    } finally {
+      setLoadingWatchlist(null)
     }
   }
 
@@ -159,7 +174,7 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
         </button>
         <div
           ref={scrollRef}
-          className={`flex space-x-3 overflow-x-auto px-4 sm:px-6 lg:px-8 pb-4 scroll-smooth scrollbar-hide touch-pan-x ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
+          className={`flex space-x-3 overflow-x-auto px-4 sm:px-6 lg:px-8 pb-4 scroll-smooth scrollbar-hide ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab lg:cursor-grab'}`}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleDragEnd}
@@ -170,7 +185,8 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x'
           }}
         >
           {movies.map((movie, index) => (
@@ -178,6 +194,9 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
               key={`${title}-${movie.id}-${index}`}
               className="flex-none w-52 group cursor-pointer transform transition-all duration-500 hover:scale-110 hover:z-10"
               style={{ animationDelay: `${index * 100}ms` }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
             >
               <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-gray-900 to-black border border-white/10 group-hover:border-red-500/50 transition-all duration-500">
                 {/* Movie Poster */}
@@ -211,26 +230,37 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
                     <button 
                       onClick={(e) => {
                         e.stopPropagation()
-                        setSelectedMovie({ id: parseInt(movie.id, 10), mediaType: movie.mediaType || 'movie' })
+                        setSelectedMovie({ 
+                          id: parseInt(movie.id, 10), 
+                          mediaType: movie.mediaType || 'movie',
+                          seasonNumber: movie.seasonNumber,
+                          episodeNumber: movie.episodeNumber,
+                          tmdbId: movie.tmdbId
+                        })
                       }}
                       className="bg-red-600/90 backdrop-blur-sm text-white p-4 rounded-full hover:bg-red-700 transition-all duration-300 transform hover:scale-110 shadow-lg"
                     >
                       <Play className="h-6 w-6 fill-current" />
                     </button>
-                    <button 
-                      onClick={(e) => handleWatchlistToggle(movie, e)}
-                      className={`backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg ${
-                        isInWatchlist(parseInt(movie.id, 10), movie.mediaType || 'movie') 
-                          ? 'bg-green-600/90 hover:bg-green-700' 
-                          : 'bg-white/20 hover:bg-white/30'
-                      }`}
-                    >
-                      {isInWatchlist(parseInt(movie.id, 10), movie.mediaType || 'movie') ? (
-                        <Check className="h-6 w-6" />
-                      ) : (
-                        <Plus className="h-6 w-6" />
-                      )}
-                    </button>
+                    {!hideWatchlistButton && (
+                      <button 
+                        onClick={(e) => handleWatchlistToggle(movie, e)}
+                        disabled={loadingWatchlist === `${parseInt(movie.id, 10)}-${movie.mediaType || 'movie'}`}
+                        className={`backdrop-blur-sm text-white p-4 rounded-full transition-all duration-300 transform hover:scale-110 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                          isInWatchlist(parseInt(movie.id, 10), movie.mediaType || 'movie') 
+                            ? 'bg-green-600/90 hover:bg-green-700' 
+                            : 'bg-white/20 hover:bg-white/30'
+                        }`}
+                      >
+                        {loadingWatchlist === `${parseInt(movie.id, 10)}-${movie.mediaType || 'movie'}` ? (
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                        ) : isInWatchlist(parseInt(movie.id, 10), movie.mediaType || 'movie') ? (
+                          <Check className="h-6 w-6" />
+                        ) : (
+                          <Plus className="h-6 w-6" />
+                        )}
+                      </button>
+                    )}
                   </div>
                   
                   {/* Movie Info */}
@@ -298,6 +328,8 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
           isOpen={selectedMovie !== null}
           onClose={() => setSelectedMovie(null)}
           showId={selectedMovie?.id || null}
+          initialSeasonNumber={selectedMovie?.seasonNumber}
+          initialEpisodeNumber={selectedMovie?.episodeNumber}
         />
       ) : (
         <MovieDetailsModal

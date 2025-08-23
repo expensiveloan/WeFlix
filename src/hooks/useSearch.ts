@@ -18,7 +18,7 @@ export const useSearch = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  const search = useCallback(async (searchQuery: string, page = 1, type: 'multi' | 'movie' | 'tv' = 'multi') => {
+  const search = useCallback(async (searchQuery: string, page = 1, type: 'multi' | 'movie' | 'tv' = 'multi', append = false) => {
     if (!searchQuery.trim()) {
       setResults([]);
       setTotalResults(0);
@@ -30,20 +30,21 @@ export const useSearch = () => {
       setLoading(true);
       setError(null);
       
-      console.log('🔍 Starting search for:', searchQuery);
+      console.log('🔍 Starting search for:', searchQuery, 'page:', page);
       
       const response = await searchApi.search(searchQuery, page, type);
       
-      console.log('📊 Search response received:', response);
+      console.log('📊 Search response received for page', page, ':', response);
       
-      if (page === 1) {
-        setResults(response.results || []);
-      } else {
+      // For pagination navigation, always replace results unless explicitly appending
+      if (append && page > 1) {
         setResults(prev => [...prev, ...(response.results || [])]);
+      } else {
+        setResults(response.results || []);
       }
       
       setTotalResults(response.totalResults || 0);
-      setTotalPages(response.totalPages || 0);
+      setTotalPages(Math.min(response.totalPages || 0, 500));
       setCurrentPage(page);
       setQuery(searchQuery);
       
@@ -79,7 +80,7 @@ export const useSearch = () => {
 
   const loadMore = useCallback(() => {
     if (currentPage < totalPages && !loading && query) {
-      search(query, currentPage + 1);
+      search(query, currentPage + 1, 'multi', true);
     }
   }, [currentPage, totalPages, loading, query, search]);
 

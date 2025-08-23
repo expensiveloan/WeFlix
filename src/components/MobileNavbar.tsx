@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Home, Search, Film, Tv, Heart, Settings, LogOut } from 'lucide-react'
+import { Home, Search, Tv, Heart, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useProfile } from '../hooks/useProfile'
 import { getAvatarDisplay } from '../utils/avatarUtils'
 import { supabase } from '../lib/supabase'
+import { useRoutePrefetch } from '../hooks/useRoutePrefetch'
+import moviesIcon from '../assets/movies.png'
 
 const MobileNavbar: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { signOut, user } = useAuth()
   const { profile } = useProfile()
+  const { handleLinkHover, handleLinkFocus } = useRoutePrefetch()
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-  const [userAvatar, setUserAvatar] = useState('default')
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
+  const [avatarLoaded, setAvatarLoaded] = useState(false)
 
   useEffect(() => {
     const loadUserAvatar = async () => {
@@ -27,19 +31,45 @@ const MobileNavbar: React.FC = () => {
 
         if (data?.settings?.avatar) {
           setUserAvatar(data.settings.avatar)
+        } else {
+          setUserAvatar('default')
         }
       } catch {
         // Use default avatar if no settings found
+        setUserAvatar('default')
+      } finally {
+        setAvatarLoaded(true)
       }
     }
 
     loadUserAvatar()
+
+    // Listen for avatar changes across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'avatar_updated' && e.newValue) {
+        loadUserAvatar()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Also listen for custom events within the same tab
+    const handleAvatarUpdate = () => {
+      loadUserAvatar()
+    }
+    
+    window.addEventListener('avatar_updated', handleAvatarUpdate)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('avatar_updated', handleAvatarUpdate)
+    }
   }, [user])
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/home' },
     { icon: Search, label: 'Search', path: '/search' },
-    { icon: Film, label: 'Movies', path: '/movies' },
+    { icon: 'custom', label: 'Movies', path: '/movies', customIcon: moviesIcon },
     { icon: Tv, label: 'TV', path: '/tv-shows' },
     { icon: Heart, label: 'List', path: '/my-list' }
   ]
@@ -74,10 +104,12 @@ const MobileNavbar: React.FC = () => {
           {/* User Info Header */}
           <div className="px-4 py-3 border-b border-gray-700/30">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 ${getAvatarDisplay(userAvatar).bg} rounded-full flex items-center justify-center`}>
-                <span className="text-white font-bold">
-                  {getAvatarDisplay(userAvatar).content}
-                </span>
+              <div className={`w-10 h-10 ${getAvatarDisplay(userAvatar || 'default').shadow} rounded-full overflow-hidden border-2 border-white/20`}>
+                <img 
+                  src={getAvatarDisplay(userAvatar || 'default').image} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-white truncate">
@@ -121,9 +153,13 @@ const MobileNavbar: React.FC = () => {
         </div>
       )}
 
-      {/* Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-gray-900 to-gray-900/95 backdrop-blur-xl border-t border-gray-800/50 z-30">
-        <div className="flex items-center justify-around px-2 py-3 pb-safe">
+      {/* Bottom Navigation - Enhanced Design */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-black via-gray-900/98 to-gray-900/95 backdrop-blur-xl border-t border-gray-700/50 shadow-2xl">
+        {/* Subtle top glow */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        
+        {/* Navigation Content */}
+        <div className="flex items-center justify-around px-2 py-3 pb-safe relative">
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path
             const Icon = item.icon
@@ -132,19 +168,51 @@ const MobileNavbar: React.FC = () => {
               <button
                 key={index}
                 onClick={() => handleNavigation(item.path)}
-                className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-0 flex-1 ${
-                  isActive 
-                    ? 'text-red-400 bg-red-500/10 scale-105' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                onMouseEnter={() => handleLinkHover(item.path)}
+                onFocus={() => handleLinkFocus(item.path)}
+                className={`relative flex flex-col items-center justify-center py-3 px-2 min-w-0 flex-1 rounded-2xl transition-all duration-300 group ${
+                  isActive ? 'bg-white/10 backdrop-blur-sm' : 'hover:bg-white/5'
                 }`}
               >
-                <Icon 
-                  className={`w-5 h-5 mb-1 transition-all duration-300 ${
-                    isActive ? 'scale-110' : 'group-hover:scale-105'
-                  }`} 
-                />
-                <span className={`text-xs font-medium transition-all duration-300 truncate ${
-                  isActive ? 'text-red-400' : 'text-gray-400'
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute -top-1 w-1 h-1 bg-red-500 rounded-full shadow-lg shadow-red-500/50 animate-pulse"></div>
+                )}
+                
+                {/* Icon container with glow effect */}
+                <div className={`relative mb-1 transition-all duration-300 ${
+                  isActive ? 'scale-110' : 'group-hover:scale-105'
+                }`}>
+                  {/* Glow effect for active state */}
+                  {isActive && (
+                    <div className="absolute inset-0 bg-white/20 rounded-lg blur-md"></div>
+                  )}
+                  
+                  {item.icon === 'custom' && item.customIcon ? (
+                    <img 
+                      src={item.customIcon} 
+                      alt={item.label}
+                      className={`relative w-6 h-6 transition-all duration-300 ${
+                        isActive 
+                          ? 'brightness-0 invert drop-shadow-lg' 
+                          : 'opacity-60 group-hover:opacity-80'
+                      }`}
+                    />
+                  ) : (
+                    <Icon 
+                      className={`relative w-6 h-6 transition-all duration-300 ${
+                        isActive 
+                          ? 'text-white drop-shadow-lg' 
+                          : 'text-gray-400 group-hover:text-gray-300'
+                      }`} 
+                    />
+                  )}
+                </div>
+                
+                <span className={`text-xs font-medium transition-all duration-300 ${
+                  isActive 
+                    ? 'text-white drop-shadow-sm' 
+                    : 'text-gray-400 group-hover:text-gray-300'
                 }`}>
                   {item.label}
                 </span>
@@ -155,21 +223,45 @@ const MobileNavbar: React.FC = () => {
           {/* Profile Button */}
           <button
             onClick={toggleProfileMenu}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-0 flex-1 ${
-              showProfileMenu 
-                ? 'text-red-400 bg-red-500/10 scale-105' 
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            className={`relative flex flex-col items-center justify-center py-3 px-2 min-w-0 flex-1 rounded-2xl transition-all duration-300 group ${
+              showProfileMenu ? 'bg-white/10 backdrop-blur-sm' : 'hover:bg-white/5'
             }`}
           >
-            <div className={`w-5 h-5 mb-1 ${getAvatarDisplay(userAvatar).bg} rounded-full flex items-center justify-center transition-all duration-300 ${
+            {/* Active indicator */}
+            {showProfileMenu && (
+              <div className="absolute -top-1 w-1 h-1 bg-red-500 rounded-full shadow-lg shadow-red-500/50 animate-pulse"></div>
+            )}
+            
+            {/* Avatar container with glow effect */}
+            <div className={`relative mb-1 transition-all duration-300 ${
               showProfileMenu ? 'scale-110' : 'group-hover:scale-105'
             }`}>
-              <span className="text-white text-xs font-bold">
-                {getAvatarDisplay(userAvatar).content}
-              </span>
+              {/* Glow effect for active state */}
+              {showProfileMenu && (
+                <div className="absolute inset-0 bg-white/20 rounded-full blur-md"></div>
+              )}
+              
+              {!avatarLoaded ? (
+                <div className="relative w-6 h-6 bg-gray-600 rounded-full animate-pulse"></div>
+              ) : (
+                <div className={`relative w-6 h-6 ${getAvatarDisplay(userAvatar || 'default').shadow} rounded-full overflow-hidden transition-all duration-300 ring-2 border border-white/20 ${
+                  showProfileMenu 
+                    ? 'ring-white/40 scale-110' 
+                    : 'ring-transparent group-hover:ring-white/30 group-hover:scale-105'
+                }`}>
+                  <img 
+                    src={getAvatarDisplay(userAvatar || 'default').image} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
             </div>
-            <span className={`text-xs font-medium transition-all duration-300 truncate ${
-              showProfileMenu ? 'text-red-400' : 'text-gray-400'
+            
+            <span className={`text-xs font-medium transition-all duration-300 ${
+              showProfileMenu 
+                ? 'text-white drop-shadow-sm' 
+                : 'text-gray-400 group-hover:text-gray-300'
             }`}>
               Profile
             </span>

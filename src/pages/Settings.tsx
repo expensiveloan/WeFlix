@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
-import { User, Lock, Monitor, Globe, Shield, Trash2, Save, AlertTriangle, X } from 'lucide-react'
+import MobileNavbar from '../components/MobileNavbar'
+import { User, Lock, Monitor, Globe, Shield, Trash2, Save, AlertTriangle, X, ArrowLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { getAvatarDisplay } from '../utils/avatarUtils'
 
 interface UserSettings {
   autoplay: boolean
@@ -92,6 +94,10 @@ const Settings: React.FC = () => {
       console.log('Settings saved successfully:', data) // Debug log
       setSaveMessage('Settings saved successfully!')
       setTimeout(() => setSaveMessage(''), 3000)
+      
+      // Notify other components about avatar update
+      localStorage.setItem('avatar_updated', Date.now().toString())
+      window.dispatchEvent(new CustomEvent('avatar_updated'))
     } catch (error) {
       console.error('Error saving settings:', error)
       setSaveMessage('Error saving settings. Please try again.')
@@ -139,9 +145,21 @@ const Settings: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex">
       <Sidebar />
+      <MobileNavbar />
       
       <div className="flex-1 lg:ml-24 p-4 lg:p-8 pb-20 lg:pb-8">
         <div className="max-w-4xl mx-auto">
+          {/* Mobile Back Button */}
+          <div className="lg:hidden mb-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors touch-manipulation"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+          </div>
+
           {/* Header */}
           <div className="mb-6 lg:mb-8">
             <h1 className="text-2xl lg:text-4xl font-bold text-white mb-2">Settings</h1>
@@ -171,34 +189,18 @@ const Settings: React.FC = () => {
                     <button
                       key={avatar}
                       onClick={() => setSettings(prev => ({ ...prev, avatar }))}
-                      className={`relative w-16 h-16 rounded-full border-2 transition-all duration-200 ${
+                      className={`relative w-16 h-16 rounded-full border-2 transition-all duration-200 overflow-hidden ${
                         settings.avatar === avatar 
                           ? 'border-red-500 ring-2 ring-red-500/30 scale-110' 
                           : 'border-gray-600 hover:border-gray-400'
                       }`}
                     >
-                      <div className={`w-full h-full rounded-full flex items-center justify-center text-white font-bold text-lg ${
-                        avatar === 'default' ? 'bg-gradient-to-br from-red-500 to-red-600' :
-                        avatar === 'avatar1' ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
-                        avatar === 'avatar2' ? 'bg-gradient-to-br from-green-500 to-green-600' :
-                        avatar === 'avatar3' ? 'bg-gradient-to-br from-purple-500 to-purple-600' :
-                        avatar === 'avatar4' ? 'bg-gradient-to-br from-yellow-500 to-yellow-600' :
-                        avatar === 'avatar5' ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
-                        avatar === 'avatar6' ? 'bg-gradient-to-br from-indigo-500 to-indigo-600' :
-                        avatar === 'avatar7' ? 'bg-gradient-to-br from-orange-500 to-orange-600' :
-                        avatar === 'avatar8' ? 'bg-gradient-to-br from-teal-500 to-teal-600' :
-                        'bg-gradient-to-br from-cyan-500 to-cyan-600'
-                      }`}>
-                        {avatar === 'default' ? 'W' :
-                         avatar === 'avatar1' ? '🎬' :
-                         avatar === 'avatar2' ? '🍿' :
-                         avatar === 'avatar3' ? '🎭' :
-                         avatar === 'avatar4' ? '⭐' :
-                         avatar === 'avatar5' ? '🎪' :
-                         avatar === 'avatar6' ? '🎨' :
-                         avatar === 'avatar7' ? '🎵' :
-                         avatar === 'avatar8' ? '🎯' :
-                         '🎲'}
+                      <div className={`w-full h-full rounded-full overflow-hidden ${getAvatarDisplay(avatar).shadow}`}>
+                        <img 
+                          src={getAvatarDisplay(avatar).image} 
+                          alt={`Avatar ${avatar}`} 
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       {settings.avatar === avatar && (
                         <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">

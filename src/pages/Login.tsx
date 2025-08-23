@@ -42,7 +42,7 @@ const Login: React.FC = () => {
       <div
         className="flex-1 flex items-center justify-center bg-cover bg-center relative overflow-hidden"
         style={{
-          backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(15,23,42,0.95) 50%, rgba(0,0,0,0.85) 100%), url('https://images.pexels.com/photos/436413/pexels-photo-436413.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop')`
+          backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(15,23,42,0.95) 50%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=1920&h=1080&q=80')`
         }}
       >
         {/* Animated background elements */}
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
         <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-10">
           <Link to="/" className="flex items-center space-x-2 group">
             <img 
-              src="/src/assets/logo.svg" 
+              src="/logo.svg" 
               alt="WeFlix" 
               className="h-12 lg:h-16 w-auto filter drop-shadow-lg group-hover:scale-105 transition-transform"
             />

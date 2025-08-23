@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useProfile } from '../hooks/useProfile'
 import { getAvatarDisplay } from '../utils/avatarUtils'
 import { supabase } from '../lib/supabase'
+import { useRoutePrefetch } from '../hooks/useRoutePrefetch'
+import logo from '../assets/logo.svg'
 import searchIcon from '../assets/search.png'
 import homeIcon from '../assets/home.png'
 import moviesIcon from '../assets/movies.png'
@@ -20,6 +22,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation()
   const { signOut, user } = useAuth()
   const { profile } = useProfile()
+  const { handleLinkHover, handleLinkFocus } = useRoutePrefetch()
 
   useEffect(() => {
     const loadUserAvatar = async () => {
@@ -45,7 +48,26 @@ const Sidebar: React.FC = () => {
       }
     }
 
+    // Listen for avatar changes across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'avatar_updated' && e.newValue) {
+        loadUserAvatar()
+      }
+    }
+    
+    const handleAvatarUpdate = () => {
+      loadUserAvatar()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('avatar_updated', handleAvatarUpdate)
+
     loadUserAvatar()
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('avatar_updated', handleAvatarUpdate)
+    }
   }, [user])
 
   const menuItems = [
@@ -76,12 +98,16 @@ const Sidebar: React.FC = () => {
         {/* Enhanced Logo */}
         <div className="mb-12 px-4 w-full">
           <div className={`flex items-center ${isExpanded ? 'justify-start' : 'justify-center'} transition-all duration-500`}>
-            <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-black text-xl">W</span>
-            </div>
-            <div className={`flex flex-col ml-3 transition-all duration-500 ${isExpanded ? 'opacity-100 translate-x-0 w-auto' : 'opacity-0 -translate-x-4 w-0'} overflow-hidden`}>
-              <span className="text-white font-black text-xl tracking-tight whitespace-nowrap">WeFlix</span>
-              <span className="text-red-400 text-xs tracking-wider uppercase whitespace-nowrap">Premium</span>
+            <div className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'w-auto' : 'w-12 h-12'}`}>
+              <img 
+                src={isExpanded ? logo : '/logo2.png'} 
+                alt="WeFlix Logo" 
+                className={`transition-all duration-500 ${
+                  isExpanded 
+                    ? 'h-16 w-auto object-contain' 
+                    : 'h-12 w-12 object-contain'
+                }`}
+              />
             </div>
           </div>
         </div>
@@ -93,6 +119,8 @@ const Sidebar: React.FC = () => {
               <li key={item.path} className="w-full">
                 <button
                   onClick={() => navigate(item.path)}
+                  onMouseEnter={() => handleLinkHover(item.path)}
+                  onFocus={() => handleLinkFocus(item.path)}
                   className={`w-full flex items-center ${isExpanded ? 'justify-start' : 'justify-center'} px-4 py-4 rounded-2xl transition-all duration-300 ${
                     location.pathname === item.path
                       ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/25'
@@ -124,16 +152,20 @@ const Sidebar: React.FC = () => {
                   : 'text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 hover:shadow-lg'
               }`}
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+              <div className={`w-12 h-12 rounded-full overflow-hidden transition-all duration-300 border border-white/20 ${
                 userAvatar ? (
                   showProfileMenu 
-                    ? `${getAvatarDisplay(userAvatar).bg} shadow-lg shadow-red-500/25 scale-110` 
-                    : `${getAvatarDisplay(userAvatar).bg} hover:shadow-lg hover:shadow-red-500/20`
+                    ? `${getAvatarDisplay(userAvatar).shadow} scale-110 ring-2 ring-white/30` 
+                    : `${getAvatarDisplay(userAvatar).shadow} hover:scale-105 hover:ring-2 hover:ring-white/20`
                 ) : 'bg-gray-600 animate-pulse'
               }`}>
-                <span className="text-white text-sm font-bold">
-                  {userAvatar ? getAvatarDisplay(userAvatar).content : ''}
-                </span>
+                {userAvatar ? (
+                  <img 
+                    src={getAvatarDisplay(userAvatar).image} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
               </div>
               
               {/* User Info - shows when expanded */}
@@ -151,10 +183,12 @@ const Sidebar: React.FC = () => {
                 {/* User Info Header */}
                 <div className="px-4 py-3 border-b border-gray-700/30">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-10 h-10 ${getAvatarDisplay(userAvatar).bg} rounded-full flex items-center justify-center`}>
-                      <span className="text-white font-bold">
-                        {getAvatarDisplay(userAvatar).content}
-                      </span>
+                    <div className={`w-10 h-10 ${getAvatarDisplay(userAvatar).shadow} rounded-full overflow-hidden border-2 border-white/20`}>
+                      <img 
+                        src={getAvatarDisplay(userAvatar).image} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-white truncate">

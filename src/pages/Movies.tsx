@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
 import MobileNavbar from '../components/MobileNavbar'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MovieRow from '../components/MovieRow'
 import { useMovies } from '../hooks/useMovies'
 import { useVideoPlayer } from '../contexts/VideoPlayerContext'
+import { movieApi, Movie } from '../services/tmdb-direct'
 
 const Movies: React.FC = () => {
   const { 
@@ -18,8 +19,38 @@ const Movies: React.FC = () => {
   } = useMovies()
   
   const { isVideoPlayerActive } = useVideoPlayer()
+  
+  // State for Asian movie sections
+  const [koreanMovies, setKoreanMovies] = useState<Movie[]>([])
+  const [chineseMovies, setChineseMovies] = useState<Movie[]>([])
+  const [asianMovies, setAsianMovies] = useState<Movie[]>([])
+  const [asianMoviesLoading, setAsianMoviesLoading] = useState(true)
 
-  if (loading) {
+  // Fetch Asian movies
+  useEffect(() => {
+    const fetchAsianMovies = async () => {
+      try {
+        setAsianMoviesLoading(true)
+        const [koreanResponse, chineseResponse, asianResponse] = await Promise.all([
+          movieApi.getKoreanMovies(),
+          movieApi.getChineseMovies(),
+          movieApi.getAsianMovies()
+        ])
+        
+        setKoreanMovies(koreanResponse.results)
+        setChineseMovies(chineseResponse.results)
+        setAsianMovies(asianResponse.results)
+      } catch (error) {
+        console.error('Error fetching Asian movies:', error)
+      } finally {
+        setAsianMoviesLoading(false)
+      }
+    }
+
+    fetchAsianMovies()
+  }, [])
+
+  if (loading || asianMoviesLoading) {
     return (
       <div className="bg-black min-h-screen">
         {!isVideoPlayerActive && <Sidebar />}
@@ -74,6 +105,15 @@ const Movies: React.FC = () => {
           )}
           {displayPopularMovies.length > 0 && (
             <MovieRow title="Popular Movies" movies={displayPopularMovies} />
+          )}
+          {koreanMovies.length > 0 && (
+            <MovieRow title="🇰🇷 Korean Movies" movies={formatMoviesForRow(koreanMovies)} />
+          )}
+          {chineseMovies.length > 0 && (
+            <MovieRow title="🇨🇳 Chinese Movies" movies={formatMoviesForRow(chineseMovies)} />
+          )}
+          {asianMovies.length > 0 && (
+            <MovieRow title="🌏 Asian Movies" movies={formatMoviesForRow(asianMovies)} />
           )}
           {displayNowPlayingMovies.length > 0 && (
             <MovieRow title="Now Playing" movies={displayNowPlayingMovies} />

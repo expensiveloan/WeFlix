@@ -26,7 +26,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   }
 
   const containerClass = fullScreen 
-    ? "min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-950 flex items-center justify-center backdrop-blur-sm"
+    ? "fixed inset-0 z-50 bg-gradient-to-br from-gray-950 via-black to-gray-950 flex items-center justify-center backdrop-blur-sm"
     : "flex items-center justify-center p-6"
 
   const renderSpinner = () => {

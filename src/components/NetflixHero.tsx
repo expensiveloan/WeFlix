@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Play, Info, ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react'
+import { Play, Info, ChevronLeft, ChevronRight, Plus, Check, Loader2 } from 'lucide-react'
 import { useMovies, useTVShows } from '../hooks/useMovies'
 import { useWatchlist } from '../hooks/useWatchlist'
 import VideoPlayer from './VideoPlayer'
@@ -9,16 +9,28 @@ import TVShowDetailsModal from './TVShowDetailsModal'
 const NetflixHero: React.FC = () => {
   const { trendingMovies } = useMovies();
   const { trendingTVShows } = useTVShows();
-  const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
+  const { addToWatchlist, removeFromWatchlist, isInWatchlist, refetch } = useWatchlist();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [showMovieDetails, setShowMovieDetails] = useState(false);
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
   
-  // Combine movies and TV shows for featured content
+  // Combine movies and TV shows for featured content with rotation
+  const [contentRotation, setContentRotation] = useState(0);
+  
+  // Rotate content selection every minute to show different trending items
+  useEffect(() => {
+    const rotationInterval = setInterval(() => {
+      setContentRotation(prev => prev + 1);
+    }, 60000); // 1 minute
+    
+    return () => clearInterval(rotationInterval);
+  }, []);
+  
   const allContent = [
-    ...trendingMovies.slice(0, 3).map(movie => ({ ...movie, mediaType: 'movie' as const })),
-    ...trendingTVShows.slice(0, 2).map(show => ({ 
+    ...trendingMovies.slice(contentRotation % 3, (contentRotation % 3) + 3).map(movie => ({ ...movie, mediaType: 'movie' as const })),
+    ...trendingTVShows.slice(contentRotation % 2, (contentRotation % 2) + 2).map(show => ({ 
       ...show, 
       mediaType: 'tv' as const,
       title: show.title // TV shows use 'title' in the API response
@@ -31,12 +43,28 @@ const NetflixHero: React.FC = () => {
   const isCurrentMovieInWatchlist = featuredMovie ? isInWatchlist(featuredMovie.id, featuredMovie.mediaType) : false;
   
   const handleWatchlistToggle = async () => {
-    if (!featuredMovie) return;
+    if (!featuredMovie || watchlistLoading) return;
     
-    if (isCurrentMovieInWatchlist) {
-      await removeFromWatchlist(featuredMovie.id, featuredMovie.mediaType);
-    } else {
-      await addToWatchlist(featuredMovie);
+    setWatchlistLoading(true);
+    
+    try {
+      if (isCurrentMovieInWatchlist) {
+        await removeFromWatchlist(featuredMovie.id, featuredMovie.mediaType);
+      } else {
+        await addToWatchlist(featuredMovie);
+      }
+      // Force a refetch to ensure sync with My List page
+      await refetch();
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+      // Refetch on error to ensure state consistency
+      try {
+        await refetch();
+      } catch (refetchError) {
+        console.error('Error refetching watchlist:', refetchError);
+      }
+    } finally {
+      setWatchlistLoading(false);
     }
   };
   
@@ -73,6 +101,16 @@ const NetflixHero: React.FC = () => {
     
     return () => clearInterval(interval);
   }, [featuredMovies.length, showVideoPlayer]);
+
+  // Auto-refresh trending content every 5 minutes
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      // Trigger a refresh of trending movies and TV shows
+      window.location.reload();
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
   
   const goToPrevious = () => {
     if (isTransitioning) return;
@@ -89,8 +127,40 @@ const NetflixHero: React.FC = () => {
     setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
     setTimeout(() => setIsTransitioning(false), 600);
   };
+  // Touch/swipe handlers for mobile
+  const [touchStartX, setTouchStartX] = useState(0)
+  const [touchEndX, setTouchEndX] = useState(0)
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX)
+  }
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX)
+  }
+  
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return
+    
+    const distance = touchStartX - touchEndX
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+    
+    if (isLeftSwipe && !isTransitioning) {
+      goToNext()
+    }
+    if (isRightSwipe && !isTransitioning) {
+      goToPrevious()
+    }
+  }
+  
   return (
-    <div className="relative h-screen bg-black overflow-hidden">
+    <div 
+      className="relative h-screen bg-black overflow-hidden touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Background Images */}
       <div className="absolute inset-0">
         {featuredMovies.map((movie, index) => (
@@ -105,108 +175,126 @@ const NetflixHero: React.FC = () => {
                 : `url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80')`
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent"></div>
+            {/* Enhanced gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20 md:from-black/80 md:via-black/40 md:to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
           </div>
         ))}
       </div>
 
       {/* Content */}
-      <div className="absolute inset-0 flex items-center justify-start px-12 z-20">
-        <div className="max-w-2xl">
-          <h1 className="text-white text-6xl font-bold mb-4 leading-tight">
+      <div className="absolute inset-0 flex items-center justify-start px-4 sm:px-6 md:px-8 lg:px-12 z-20">
+        <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl">
+          {/* Title with better mobile scaling */}
+          <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 sm:mb-4 lg:mb-6 leading-tight drop-shadow-2xl">
             {featuredMovie?.title || 'No Title'}
           </h1>
           
+          {/* Year and media type */}
           {featuredMovie && (
-            <p className="text-white text-xl mb-4">
-              {new Date(featuredMovie.releaseDate).getFullYear()}
-            </p>
+            <div className="flex items-center gap-3 mb-3 sm:mb-4 lg:mb-6">
+              <p className="text-white/90 text-lg sm:text-xl lg:text-2xl font-medium">
+                {new Date(featuredMovie.releaseDate).getFullYear()}
+              </p>
+              <span className="text-white/70 text-base sm:text-lg lg:text-xl">
+                • {featuredMovie.mediaType === 'movie' ? 'Movie' : 'TV Series'}
+              </span>
+            </div>
           )}
 
-          <div className="flex items-center mb-6">
-            <div className="flex items-center bg-yellow-500 text-black px-3 py-1 rounded text-sm font-bold mr-4">
-              <span className="mr-1">★</span>
+          {/* Rating and trending badge */}
+          <div className="flex items-center gap-3 mb-4 sm:mb-6 lg:mb-8">
+            <div className="flex items-center bg-yellow-500 text-black px-3 py-1.5 rounded-lg text-sm sm:text-base font-bold shadow-lg">
+              <span className="mr-1.5">★</span>
               <span>{featuredMovie?.voteAverage.toFixed(1) || '8.8'}</span>
             </div>
-            <span className="bg-red-600 text-white text-xs px-2 py-1 rounded font-medium uppercase">
+            <span className="bg-red-600 text-white text-sm sm:text-base px-3 py-1.5 rounded-lg font-semibold uppercase tracking-wide shadow-lg">
               Trending
             </span>
           </div>
 
-          <div className="flex gap-4 mb-8">
+          {/* Action buttons with improved mobile layout */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 lg:mb-10">
             <button 
               onClick={handlePlayMovie}
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded flex items-center space-x-2 font-semibold transition-colors"
+              className="bg-red-600/95 backdrop-blur-md hover:bg-red-700 text-white px-8 sm:px-10 lg:px-12 py-4 lg:py-5 rounded-xl flex items-center justify-center space-x-3 font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl touch-manipulation order-1"
             >
-              <Play size={20} fill="white" />
+              <Play size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" fill="white" />
               <span>Play</span>
             </button>
             <button 
               onClick={handleShowDetails}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded flex items-center space-x-2 font-semibold transition-colors"
+              className="bg-gray-700/95 backdrop-blur-md hover:bg-gray-600 text-white px-8 sm:px-10 lg:px-12 py-4 lg:py-5 rounded-xl flex items-center justify-center space-x-3 font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl touch-manipulation order-3 sm:order-2"
             >
-              <Info size={20} />
+              <Info size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               <span>More Info</span>
             </button>
             <button 
               onClick={handleWatchlistToggle}
-              className={`px-6 py-3 rounded flex items-center space-x-2 font-semibold transition-colors ${
+              disabled={watchlistLoading}
+              className={`px-8 sm:px-10 lg:px-12 py-4 lg:py-5 rounded-xl flex items-center justify-center space-x-3 font-bold text-lg sm:text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl touch-manipulation backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 order-2 sm:order-3 ${
                 isCurrentMovieInWatchlist 
-                  ? 'bg-green-600 hover:bg-green-700 text-white' 
-                  : 'bg-gray-700 hover:bg-gray-600 text-white'
+                  ? 'bg-green-600/95 hover:bg-green-700 text-white' 
+                  : 'bg-gray-800/95 hover:bg-gray-700 text-white'
               }`}
             >
-              {isCurrentMovieInWatchlist ? (
+              {watchlistLoading ? (
                 <>
-                  <Check size={20} />
+                  <Loader2 size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7 animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : isCurrentMovieInWatchlist ? (
+                <>
+                  <Check size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
                   <span>Added</span>
                 </>
               ) : (
                 <>
-                  <Plus size={20} />
-                  <span>Watchlist</span>
+                  <Plus size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
+                  <span>My List</span>
                 </>
               )}
             </button>
           </div>
 
-          <p className="text-gray-300 text-lg leading-relaxed max-w-xl">
-            {featuredMovie?.overview?.length > 200 
-              ? `${featuredMovie.overview.substring(0, 200)}...` 
-              : featuredMovie?.overview || 'Experience premium entertainment with stunning visuals and immersive storytelling.'}
+          {/* Overview with responsive text sizing */}
+          <p className="text-gray-200 text-base sm:text-lg lg:text-xl leading-relaxed max-w-full sm:max-w-lg lg:max-w-2xl drop-shadow-lg">
+            {featuredMovie?.overview?.length > (window.innerWidth < 640 ? 140 : window.innerWidth < 1024 ? 180 : 250) 
+              ? `${featuredMovie.overview.substring(0, window.innerWidth < 640 ? 140 : window.innerWidth < 1024 ? 180 : 250)}...` 
+              : featuredMovie?.overview || 'Experience premium entertainment with stunning visuals and immersive storytelling that will keep you on the edge of your seat.'}
           </p>
         </div>
       </div>
 
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows - Better positioning */}
       {featuredMovies.length > 1 && (
         <>
           <button
             onClick={goToPrevious}
-            className={`absolute left-8 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200 z-20 ${
-              isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100'
+            className={`absolute left-2 md:left-4 lg:left-6 xl:left-8 top-1/2 transform -translate-y-1/2 bg-black/70 backdrop-blur-md hover:bg-black/90 text-white p-2.5 md:p-3.5 lg:p-4 rounded-full transition-all duration-300 z-30 hidden md:flex items-center justify-center shadow-2xl hover:scale-110 border border-white/10 ${
+              isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:opacity-100'
             }`}
             aria-label="Previous movie"
             disabled={isTransitioning}
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={20} className="md:w-6 md:h-6 lg:w-7 lg:h-7" strokeWidth={2.5} />
           </button>
           <button
             onClick={goToNext}
-            className={`absolute right-8 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-200 z-20 ${
-              isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100'
+            className={`absolute right-2 md:right-4 lg:right-6 xl:right-8 top-1/2 transform -translate-y-1/2 bg-black/70 backdrop-blur-md hover:bg-black/90 text-white p-2.5 md:p-3.5 lg:p-4 rounded-full transition-all duration-300 z-30 hidden md:flex items-center justify-center shadow-2xl hover:scale-110 border border-white/10 ${
+              isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:opacity-100'
             }`}
             aria-label="Next movie"
             disabled={isTransitioning}
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={20} className="md:w-6 md:h-6 lg:w-7 lg:h-7" strokeWidth={2.5} />
           </button>
         </>
       )}
 
-      {/* Movie Indicators */}
+      {/* Movie Indicators - Enhanced */}
       {featuredMovies.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+        <div className="absolute bottom-6 sm:bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
           {featuredMovies.map((_, index) => (
             <button
               key={index}
@@ -217,10 +305,10 @@ const NetflixHero: React.FC = () => {
                   setTimeout(() => setIsTransitioning(false), 600);
                 }
               }}
-              className={`w-3 h-3 rounded-full transition-all duration-200 ${
+              className={`w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 rounded-full transition-all duration-300 touch-manipulation shadow-lg ${
                 index === currentIndex 
-                  ? 'bg-red-600' 
-                  : 'bg-white/40 hover:bg-white/60'
+                  ? 'bg-red-600 scale-125' 
+                  : 'bg-white/50 hover:bg-white/80 hover:scale-110'
               } ${isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
               aria-label={`Go to movie ${index + 1}`}
               disabled={isTransitioning}
@@ -228,6 +316,13 @@ const NetflixHero: React.FC = () => {
           ))}
         </div>
       )}
+      
+      {/* Mobile Swipe Hint - Enhanced */}
+      <div className="absolute bottom-20 sm:bottom-24 left-1/2 transform -translate-x-1/2 md:hidden z-20">
+        <div className="bg-black/70 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+          <p className="text-white/80 text-sm font-medium">← Swipe to browse →</p>
+        </div>
+      </div>
       
       {/* Video Player */}
       {showVideoPlayer && featuredMovie && (

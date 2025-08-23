@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Play, Plus, Check, Star, Calendar, Clock, Users } from 'lucide-react'
+import { X, Play, Plus, Check, Star, Calendar, Clock, Users, Loader2 } from 'lucide-react'
 import { movieApi } from '../services/tmdb-direct'
 import { useWatchlist } from '../hooks/useWatchlist'
 import VideoPlayer from './VideoPlayer'
@@ -36,15 +36,17 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
+  const [watchlistLoading, setWatchlistLoading] = useState(false)
   
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist()
   const isInUserWatchlist = details ? isInWatchlist(details.id, 'movie') : false
 
 
   const handleWatchlistToggle = async () => {
-    if (!details) return
+    if (!details || watchlistLoading) return
     
     try {
+      setWatchlistLoading(true)
       if (isInUserWatchlist) {
         await removeFromWatchlist(details.id, 'movie')
       } else {
@@ -67,6 +69,8 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
       }
     } catch (error) {
       console.error('Error toggling watchlist:', error)
+    } finally {
+      setWatchlistLoading(false)
     }
   }
 
@@ -110,8 +114,8 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 lg:p-4">
+      <div className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[95vh] overflow-y-auto scroll-smooth overscroll-contain">
         {loading && (
           <div className="flex items-center justify-center h-96">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
@@ -140,12 +144,12 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent rounded-t-lg" />
               
-              {/* Close button */}
+              {/* Close button - Enhanced for mobile */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition-all duration-200"
+                className="absolute top-3 right-3 lg:top-4 lg:right-4 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full p-3 lg:p-2 transition-all duration-300 hover:scale-110 group border border-white/10 z-10 touch-manipulation"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-5 h-5 lg:w-6 lg:h-6 text-white group-hover:text-red-400 transition-colors" />
               </button>
 
               {/* Title and basic info */}
@@ -186,9 +190,16 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
                 
                 <button
                   onClick={handleWatchlistToggle}
-                  className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                  disabled={watchlistLoading}
+                  className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isInUserWatchlist ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  {watchlistLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : isInUserWatchlist ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <Plus className="w-5 h-5" />
+                  )}
                   {isInUserWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                 </button>
               </div>
