@@ -117,7 +117,7 @@ const Home: React.FC = () => {
       <div className="bg-black min-h-screen">
         {!isVideoPlayerActive && <Sidebar />}
         <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} flex items-center justify-center min-h-screen`}>
-          <LoadingSpinner />
+          <LoadingSpinner variant="minimal" size="md" text="Loading content..." />
         </div>
       </div>
     );

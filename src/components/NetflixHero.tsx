@@ -19,14 +19,16 @@ const NetflixHero: React.FC = () => {
   // Combine movies and TV shows for featured content with rotation
   const [contentRotation, setContentRotation] = useState(0);
   
-  // Rotate content selection every minute to show different trending items
+  // Rotate content selection every minute to show different trending items (pause when modal is open)
   useEffect(() => {
+    if (showMovieDetails || showVideoPlayer) return;
+    
     const rotationInterval = setInterval(() => {
       setContentRotation(prev => prev + 1);
     }, 60000); // 1 minute
     
     return () => clearInterval(rotationInterval);
-  }, []);
+  }, [showMovieDetails, showVideoPlayer]);
   
   const allContent = [
     ...trendingMovies.slice(contentRotation % 3, (contentRotation % 3) + 3).map(movie => ({ ...movie, mediaType: 'movie' as const })),
@@ -91,26 +93,28 @@ const NetflixHero: React.FC = () => {
     return streamingSources[0];
   };
   
-  // Auto-rotate every 8 seconds (pause when video player is active)
+  // Auto-rotate every 8 seconds (pause when video player or modal is active)
   useEffect(() => {
-    if (featuredMovies.length <= 1 || showVideoPlayer) return;
+    if (featuredMovies.length <= 1 || showVideoPlayer || showMovieDetails) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
     }, 8000);
     
     return () => clearInterval(interval);
-  }, [featuredMovies.length, showVideoPlayer]);
+  }, [featuredMovies.length, showVideoPlayer, showMovieDetails]);
 
-  // Auto-refresh trending content every 5 minutes
+  // Auto-refresh trending content every 5 minutes (pause when modal is open)
   useEffect(() => {
+    if (showMovieDetails || showVideoPlayer) return;
+    
     const refreshInterval = setInterval(() => {
       // Trigger a refresh of trending movies and TV shows
       window.location.reload();
     }, 5 * 60 * 1000); // 5 minutes
     
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [showMovieDetails, showVideoPlayer]);
   
   const goToPrevious = () => {
     if (isTransitioning) return;
@@ -118,14 +122,14 @@ const NetflixHero: React.FC = () => {
     setCurrentIndex((prev) => 
       prev === 0 ? featuredMovies.length - 1 : prev - 1
     );
-    setTimeout(() => setIsTransitioning(false), 600);
+    setTimeout(() => setIsTransitioning(false), 500);
   };
   
   const goToNext = () => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % featuredMovies.length);
-    setTimeout(() => setIsTransitioning(false), 600);
+    setTimeout(() => setIsTransitioning(false), 500);
   };
   // Touch/swipe handlers for mobile
   const [touchStartX, setTouchStartX] = useState(0)
@@ -156,7 +160,7 @@ const NetflixHero: React.FC = () => {
   
   return (
     <div 
-      className="relative h-screen bg-black overflow-hidden touch-pan-y"
+      className="relative h-screen bg-black overflow-hidden touch-pan-y group"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -271,23 +275,23 @@ const NetflixHero: React.FC = () => {
         <>
           <button
             onClick={goToPrevious}
-            className={`absolute left-2 md:left-4 lg:left-6 xl:left-8 top-1/2 transform -translate-y-1/2 bg-black/70 backdrop-blur-md hover:bg-black/90 text-white p-2.5 md:p-3.5 lg:p-4 rounded-full transition-all duration-300 z-30 hidden md:flex items-center justify-center shadow-2xl hover:scale-110 border border-white/10 ${
-              isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:opacity-100'
+            className={`absolute left-2 md:left-4 lg:left-6 xl:left-8 top-1/2 transform -translate-y-1/2 bg-black/20 backdrop-blur-sm hover:bg-black/60 text-white/50 hover:text-white p-2.5 md:p-3.5 lg:p-4 rounded-full transition-all duration-300 z-30 hidden md:flex items-center justify-center hover:scale-105 border border-transparent hover:border-white/10 opacity-0 group-hover:opacity-80 ${
+              isTransitioning ? 'opacity-0 cursor-not-allowed pointer-events-none' : ''
             }`}
             aria-label="Previous movie"
             disabled={isTransitioning}
           >
-            <ChevronLeft size={20} className="md:w-6 md:h-6 lg:w-7 lg:h-7" strokeWidth={2.5} />
+            <ChevronLeft size={18} className="md:w-5 md:h-5 lg:w-6 lg:h-6" strokeWidth={1.5} />
           </button>
           <button
             onClick={goToNext}
-            className={`absolute right-2 md:right-4 lg:right-6 xl:right-8 top-1/2 transform -translate-y-1/2 bg-black/70 backdrop-blur-md hover:bg-black/90 text-white p-2.5 md:p-3.5 lg:p-4 rounded-full transition-all duration-300 z-30 hidden md:flex items-center justify-center shadow-2xl hover:scale-110 border border-white/10 ${
-              isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:opacity-100'
+            className={`absolute right-2 md:right-4 lg:right-6 xl:right-8 top-1/2 transform -translate-y-1/2 bg-black/20 backdrop-blur-sm hover:bg-black/60 text-white/50 hover:text-white p-2.5 md:p-3.5 lg:p-4 rounded-full transition-all duration-300 z-30 hidden md:flex items-center justify-center hover:scale-105 border border-transparent hover:border-white/10 opacity-0 group-hover:opacity-80 ${
+              isTransitioning ? 'opacity-0 cursor-not-allowed pointer-events-none' : ''
             }`}
             aria-label="Next movie"
             disabled={isTransitioning}
           >
-            <ChevronRight size={20} className="md:w-6 md:h-6 lg:w-7 lg:h-7" strokeWidth={2.5} />
+            <ChevronRight size={18} className="md:w-5 md:h-5 lg:w-6 lg:h-6" strokeWidth={1.5} />
           </button>
         </>
       )}

@@ -128,7 +128,7 @@ const SignUp: React.FC = () => {
                   First Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                  <User className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-300 hover:text-red-400 transition-colors" />
                   <input
                     type="text"
                     id="firstName"
@@ -145,7 +145,7 @@ const SignUp: React.FC = () => {
                   Last Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                  <User className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-300 hover:text-red-400 transition-colors" />
                   <input
                     type="text"
                     id="lastName"
@@ -164,7 +164,7 @@ const SignUp: React.FC = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                <Mail className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-300 hover:text-red-400 transition-colors" />
                 <input
                   type="email"
                   id="email"
@@ -182,7 +182,7 @@ const SignUp: React.FC = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                <Lock className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-300 hover:text-red-400 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -195,7 +195,7 @@ const SignUp: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4 lg:h-5 lg:w-5" /> : <Eye className="h-4 w-4 lg:h-5 lg:w-5" />}
                 </button>
@@ -207,7 +207,7 @@ const SignUp: React.FC = () => {
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                <Lock className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 lg:h-5 lg:w-5 text-gray-300 hover:text-red-400 transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="confirmPassword"

@@ -16,7 +16,7 @@ const Trending: React.FC = () => {
       <div className="bg-black min-h-screen">
         <Sidebar />
         <div className="ml-24 flex items-center justify-center min-h-screen">
-          <LoadingSpinner />
+          <LoadingSpinner variant="minimal" size="md" text="Loading trending..." />
         </div>
       </div>
     );

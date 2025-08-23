@@ -24,7 +24,7 @@ const Movies: React.FC = () => {
   const [koreanMovies, setKoreanMovies] = useState<Movie[]>([])
   const [chineseMovies, setChineseMovies] = useState<Movie[]>([])
   const [asianMovies, setAsianMovies] = useState<Movie[]>([])
-  const [asianMoviesLoading, setAsianMoviesLoading] = useState(true)
+  const [, setAsianMoviesLoading] = useState(true)
 
   // Fetch Asian movies
   useEffect(() => {
@@ -50,12 +50,12 @@ const Movies: React.FC = () => {
     fetchAsianMovies()
   }, [])
 
-  if (loading || asianMoviesLoading) {
+  if (loading) {
     return (
       <div className="bg-black min-h-screen">
         {!isVideoPlayerActive && <Sidebar />}
         <div className={`${isVideoPlayerActive ? '' : 'lg:ml-24'} flex items-center justify-center min-h-screen`}>
-          <LoadingSpinner />
+          <LoadingSpinner variant="minimal" size="md" text="Loading movies..." />
         </div>
       </div>
     );

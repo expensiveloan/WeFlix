@@ -156,8 +156,8 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 lg:p-4 animate-fadeIn">
-      <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto scroll-smooth overscroll-contain border border-gray-700/50 shadow-2xl transform animate-scaleIn">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-2 lg:p-6 animate-fadeIn">
+      <div className="bg-gradient-to-br from-gray-900/95 via-black/95 to-gray-900/95 backdrop-blur-xl rounded-3xl max-w-6xl w-full max-h-[96vh] overflow-y-auto scroll-smooth overscroll-contain border border-gray-600/30 shadow-2xl transform animate-scaleIn">
         {loading && (
           <div className="flex flex-col items-center justify-center h-96 space-y-4">
             <div className="relative">
@@ -189,15 +189,32 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
         {details && (
           <>
             {/* Header with backdrop */}
-            <div className="relative">
-              {details.backdropPath && (
-                <img
-                  src={`https://image.tmdb.org/t/p/w1280${details.backdropPath}`}
-                  alt={details.name}
-                  className="w-full h-64 object-cover rounded-t-lg"
-                />
+            <div className="relative overflow-hidden rounded-t-2xl">
+              {details.backdropPath ? (
+                <>
+                  <img
+                    src={`https://image.tmdb.org/t/p/original${details.backdropPath}`}
+                    alt={details.name}
+                    className="w-full h-80 lg:h-96 object-cover transform hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  {/* Enhanced gradient overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-gray-900/20" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-900/60 via-transparent to-gray-900/60" />
+                  {/* Cinematic bars effect */}
+                  <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
+                </>
+              ) : (
+                <div className="w-full h-80 lg:h-96 bg-gradient-to-br from-gray-800 via-gray-900 to-black flex items-center justify-center">
+                  <div className="text-gray-500 text-center">
+                    <div className="w-24 h-24 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
+                      <Tv className="w-12 h-12" />
+                    </div>
+                    <p className="text-lg font-medium">{details.name}</p>
+                  </div>
+                </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent rounded-t-lg" />
               
               {/* Close button - Enhanced for mobile */}
               <button
@@ -209,67 +226,99 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
 
               {/* Title and basic info */}
               <div className="absolute bottom-6 left-6 right-6">
-                <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10">
-                  <h2 className="text-4xl font-black text-white mb-3 drop-shadow-lg">{details.name}</h2>
-                  <div className="flex flex-wrap items-center gap-4 text-gray-200">
-                    <div className="flex items-center gap-2 bg-yellow-500/20 px-3 py-1 rounded-full">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                      <span className="font-semibold">{details.voteAverage.toFixed(1)}</span>
-                      <span className="text-sm text-gray-300">({details.voteCount.toLocaleString()})</span>
+                <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
+                  <h2 className="text-3xl lg:text-4xl font-black text-white mb-3 drop-shadow-2xl leading-tight">{details.name}</h2>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-yellow-500/30">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="font-bold text-white">{details.voteAverage.toFixed(1)}</span>
+                      <span className="text-xs text-gray-300">({details.voteCount.toLocaleString()})</span>
                     </div>
                     {details.firstAirDate && (
-                      <div className="flex items-center gap-2 bg-blue-500/20 px-3 py-1 rounded-full">
-                        <Calendar className="w-5 h-5 text-blue-400" />
-                        <span className="font-medium">{new Date(details.firstAirDate).getFullYear()}</span>
+                      <div className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-blue-500/30">
+                        <Calendar className="w-4 h-4 text-blue-400" />
+                        <span className="font-semibold text-white text-sm">{new Date(details.firstAirDate).getFullYear()}</span>
                       </div>
                     )}
                     {details.numberOfSeasons && (
-                      <div className="flex items-center gap-2 bg-purple-500/20 px-3 py-1 rounded-full">
-                        <Tv className="w-5 h-5 text-purple-400" />
-                        <span className="font-medium">{details.numberOfSeasons} Season{details.numberOfSeasons > 1 ? 's' : ''}</span>
+                      <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-purple-500/30">
+                        <Tv className="w-4 h-4 text-purple-400" />
+                        <span className="font-semibold text-white text-sm">{details.numberOfSeasons} Season{details.numberOfSeasons > 1 ? 's' : ''}</span>
                       </div>
                     )}
                     {details.episodeRunTime && details.episodeRunTime[0] && (
-                      <div className="flex items-center gap-2 bg-green-500/20 px-3 py-1 rounded-full">
-                        <Clock className="w-5 h-5 text-green-400" />
-                        <span className="font-medium">{details.episodeRunTime[0]}m</span>
+                      <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-green-500/30">
+                        <Clock className="w-4 h-4 text-green-400" />
+                        <span className="font-semibold text-white text-sm">{details.episodeRunTime[0]}m</span>
                       </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <span className="px-2 py-1 bg-gray-600/30 rounded-full text-xs font-medium">{details.status}</span>
+                    {details.numberOfEpisodes && (
+                      <span className="px-2 py-1 bg-gray-600/30 rounded-full text-xs font-medium">{details.numberOfEpisodes} Episodes</span>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Content */}
-            <div className="p-8">
-              {/* Action buttons */}
-              <div className="flex flex-wrap gap-4 mb-8">
-                <button
-                  onClick={() => setShowVideoPlayer(true)}
-                  className="flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
-                >
-                  <Play className="w-6 h-6 fill-current" />
-                  Play Episode
-                </button>
-                
-                <button
-                  onClick={handleWatchlistToggle}
-                  disabled={watchlistLoading}
-                  className={`flex items-center gap-3 px-8 py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-                    isInUserWatchlist 
-                      ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white hover:shadow-green-500/25' 
-                      : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white hover:shadow-gray-500/25'
-                  }`}
-                >
-                  {watchlistLoading ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : isInUserWatchlist ? (
-                    <Check className="w-6 h-6" />
+            {/* Content with Poster */}
+            <div className="p-6 lg:p-8">
+              {/* Main Content Layout with Poster */}
+              <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-6">
+                {/* Poster Section */}
+                <div className="flex-shrink-0 mx-auto lg:mx-0">
+                  {details.posterPath ? (
+                    <div className="relative group">
+                      <img
+                        src={`https://image.tmdb.org/t/p/w500${details.posterPath}`}
+                        alt={details.name}
+                        className="w-48 h-72 lg:w-56 lg:h-84 object-cover rounded-xl shadow-2xl border-2 border-gray-700/50 group-hover:border-red-500/50 transition-all duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
                   ) : (
-                    <Plus className="w-6 h-6" />
+                    <div className="w-48 h-72 lg:w-56 lg:h-84 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl flex items-center justify-center border-2 border-gray-700/50">
+                      <div className="text-center text-gray-400">
+                        <Tv className="w-12 h-12 mx-auto mb-3" />
+                        <p className="text-sm font-medium">No Poster Available</p>
+                      </div>
+                    </div>
                   )}
-                  {isInUserWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
-                </button>
+                </div>
+
+                {/* Details Section */}
+                <div className="flex-1 min-w-0">
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    <button
+                      onClick={() => setShowVideoPlayer(true)}
+                      className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                    >
+                      <Play className="w-5 h-5 fill-current" />
+                      Watch Now
+                    </button>
+                    <button
+                      onClick={handleWatchlistToggle}
+                      disabled={watchlistLoading}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                        isInUserWatchlist 
+                          ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white hover:shadow-green-500/25' 
+                          : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white hover:shadow-gray-500/25'
+                      }`}
+                    >
+                      {watchlistLoading ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : isInUserWatchlist ? (
+                        <Check className="w-6 h-6" />
+                      ) : (
+                        <Plus className="w-6 h-6" />
+                      )}
+                      {isInUserWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Season and Episode Selection */}
@@ -318,9 +367,7 @@ const TVShowDetailsModal: React.FC<TVShowDetailsModalProps> = ({ isOpen, onClose
                   <div className="w-1 h-6 bg-red-500 rounded-full"></div>
                   Overview
                 </h3>
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-                  <p className="text-gray-200 leading-relaxed text-lg">{details.overview}</p>
-                </div>
+                <p className="text-gray-300 leading-relaxed text-lg">{details.overview}</p>
               </div>
 
               {/* Show Info */}

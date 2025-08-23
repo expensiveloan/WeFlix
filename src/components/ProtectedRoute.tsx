@@ -11,7 +11,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading, session } = useAuth()
 
   if (loading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner variant="minimal" size="md" text="Authenticating..." />
   }
 
   // Check both user and session validity
