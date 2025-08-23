@@ -136,14 +136,20 @@ const NetflixHero: React.FC = () => {
   const [touchEndX, setTouchEndX] = useState(0)
   
   const handleTouchStart = (e: React.TouchEvent) => {
+    // Don't handle swipes when modals are open
+    if (showMovieDetails || showVideoPlayer) return
     setTouchStartX(e.targetTouches[0].clientX)
   }
   
   const handleTouchMove = (e: React.TouchEvent) => {
+    // Don't handle swipes when modals are open
+    if (showMovieDetails || showVideoPlayer) return
     setTouchEndX(e.targetTouches[0].clientX)
   }
   
   const handleTouchEnd = () => {
+    // Don't handle swipes when modals are open
+    if (showMovieDetails || showVideoPlayer) return
     if (!touchStartX || !touchEndX) return
     
     const distance = touchStartX - touchEndX
@@ -156,14 +162,18 @@ const NetflixHero: React.FC = () => {
     if (isRightSwipe && !isTransitioning) {
       goToPrevious()
     }
+    
+    // Reset touch positions
+    setTouchStartX(0)
+    setTouchEndX(0)
   }
   
   return (
     <div 
       className="relative h-screen bg-black overflow-hidden touch-pan-y group"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      onTouchStart={showMovieDetails || showVideoPlayer ? undefined : handleTouchStart}
+      onTouchMove={showMovieDetails || showVideoPlayer ? undefined : handleTouchMove}
+      onTouchEnd={showMovieDetails || showVideoPlayer ? undefined : handleTouchEnd}
     >
       {/* Background Images */}
       <div className="absolute inset-0">

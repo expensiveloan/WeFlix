@@ -226,10 +226,10 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
                 {/* Details Section */}
                 <div className="flex-1 min-w-0">
                   {/* Action buttons */}
-                  <div className="flex flex-wrap gap-3 mb-6">
+                  <div className="flex flex-col sm:flex-row gap-3 mb-6">
                     <button
                       onClick={() => setShowVideoPlayer(true)}
-                      className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                      className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25 flex-1 sm:flex-initial min-w-[140px]"
                     >
                       <Play className="w-5 h-5 fill-current" />
                       Watch Now
@@ -237,20 +237,19 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({ isOpen, onClose, 
                     <button
                       onClick={handleWatchlistToggle}
                       disabled={watchlistLoading}
-                      className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                      className={`flex items-center justify-center px-4 py-3 rounded-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                         isInUserWatchlist 
                           ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white hover:shadow-green-500/25' 
                           : 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white hover:shadow-gray-500/25'
                       }`}
                     >
                       {watchlistLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-6 h-6 animate-spin" />
                       ) : isInUserWatchlist ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-6 h-6" />
                       ) : (
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-6 h-6" />
                       )}
-                      {isInUserWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                     </button>
                   </div>
 

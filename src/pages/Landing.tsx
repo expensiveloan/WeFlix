@@ -260,13 +260,13 @@ const Landing: React.FC = () => {
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 lg:mb-8 leading-tight bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-            Premium Streaming
+            Unlimited Movies
             <span className="block bg-gradient-to-r from-red-500 to-pink-500 bg-clip-text text-transparent">
-              Redefined
+              & TV Shows
             </span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl mb-6 lg:mb-8 text-gray-300 max-w-4xl mx-auto leading-relaxed px-2">
-            Experience cinema-quality entertainment with our curated collection of blockbuster movies and exclusive content
+            Watch anywhere, anytime. Discover thousands of movies and TV shows from every genre, all in stunning quality
           </p>
           <div className="flex items-center justify-center mb-12">
             <Link
