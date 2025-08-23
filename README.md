@@ -14,7 +14,7 @@
   
   A full-stack movie streaming platform with real movie data, user authentication, and modern Netflix-style UI
   
-  [🚀 Live Demo](#) • [📖 Documentation](#setup-instructions) • [🐛 Report Bug](../../issues) • [✨ Request Feature](../../issues)
+  [🚀 Live Demo](https://weflixmovie.netlify.app/) • [📖 Documentation](#-quick-start) • [🐛 Report Bug](../../issues) • [✨ Request Feature](../../issues)
 </div>
 
 ---
