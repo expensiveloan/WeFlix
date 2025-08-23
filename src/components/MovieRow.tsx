@@ -168,9 +168,9 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
         {/* Left Arrow */}
         <button
           onClick={() => scroll('left')}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/70 backdrop-blur-sm text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110 shadow-lg hidden lg:block"
+          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/20 backdrop-blur-sm text-white/50 hover:text-white p-3 rounded-full opacity-0 group-hover:opacity-80 transition-all duration-300 hover:bg-black/60 hover:scale-105 border border-transparent hover:border-white/10 hidden lg:block"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
         </button>
         <div
           ref={scrollRef}
@@ -316,9 +316,9 @@ const MovieRow: React.FC<MovieRowProps> = ({ title, movies, showViewAll = false,
         {/* Right Arrow */}
         <button
           onClick={() => scroll('right')}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/70 backdrop-blur-sm text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/90 hover:scale-110 shadow-lg hidden lg:block"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/20 backdrop-blur-sm text-white/50 hover:text-white p-3 rounded-full opacity-0 group-hover:opacity-80 transition-all duration-300 hover:bg-black/60 hover:scale-105 border border-transparent hover:border-white/10 hidden lg:block"
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
         </button>
       </div>
 
