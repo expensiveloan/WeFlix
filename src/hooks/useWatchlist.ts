@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { watchlistApi, WatchlistItem, Movie, TVShow } from '../services/tmdb-direct';
+import { watchlistApi, WatchlistItem, Movie, TVShow, movieApi, tvApi } from '../services/tmdb-direct';
 import { useAuth } from '../contexts/AuthContext';
 
 export const useWatchlist = () => {
@@ -47,15 +47,29 @@ export const useWatchlist = () => {
 
     try {
       setError(null);
+      
+      // Get detailed information from TMDB API to ensure we have complete data
+      let detailedItem = item;
+      try {
+        if (item.mediaType === 'movie') {
+          detailedItem = await movieApi.getDetails(item.id);
+        } else {
+          detailedItem = await tvApi.getDetails(item.id);
+        }
+      } catch (detailError) {
+        console.warn('Could not fetch detailed info, using original data:', detailError);
+        // Continue with original item if detailed fetch fails
+      }
+      
       const watchlistItem = {
-        media_id: item.id,
-        media_type: item.mediaType,
-        title: item.title,
-        poster_path: item.posterPath,
-        backdrop_path: item.backdropPath,
-        overview: item.overview,
-        release_date: item.releaseDate,
-        vote_average: item.voteAverage
+        media_id: detailedItem.id,
+        media_type: detailedItem.mediaType,
+        title: detailedItem.title,
+        poster_path: detailedItem.posterPath,
+        backdrop_path: detailedItem.backdropPath,
+        overview: detailedItem.overview || '',
+        release_date: detailedItem.releaseDate || null,
+        vote_average: detailedItem.voteAverage || 0
       };
 
       // Optimistic update - add to local state immediately

@@ -121,17 +121,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, onClose, contentT
         `https://www.2embed.cc/embedtv/${contentId}&s=${currentSeasonNumber}&e=${currentEpisodeNumber}&ads=false&adblock=true&noad=1&noads=true&ad=0`,
         `https://player.smashy.stream/tv/${contentId}?s=${currentSeasonNumber}&e=${currentEpisodeNumber}&ads=0&adblock=1&noad=true&noads=1&ad=false`,
         `https://vidsrc.me/embed/tv?tmdb=${contentId}&season=${currentSeasonNumber}&episode=${currentEpisodeNumber}&ads=false&adblock=true&noad=1&noads=true`,
-        `https://autoembed.cc/tv/tmdb/${contentId}?s=${currentSeasonNumber}&e=${currentEpisodeNumber}&ads=0&adblock=1&noad=true&noads=1&ad=false`,
-        `https://embedder.net/e/tv?tmdb=${contentId}&s=${currentSeasonNumber}&e=${currentEpisodeNumber}&noads=1&adblock=true&noad=1&ads=false&ad=0`
+        `https://moviesapi.club/movie/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`,
+
       ]
     } else {
       return [
+        `https://vidsrc.me/embed/movie?tmdb=${contentId}&ads=false&adblock=true&noad=1&noads=true`,
         `https://www.2embed.cc/embed/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`,
         `https://player.smashy.stream/movie/${contentId}?ads=0&adblock=1&noad=true&noads=1&ad=false`,
-        `https://moviesapi.club/movie/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`,
-        `https://vidsrc.me/embed/movie?tmdb=${contentId}&ads=false&adblock=true&noad=1&noads=true`,
-        `https://autoembed.cc/movie/tmdb/${contentId}?ads=0&adblock=1&noad=true&noads=1&ad=false`,
-        `https://embedder.net/e/movie?tmdb=${contentId}&noads=1&adblock=true&noad=1&ads=false&ad=0`
+        `https://moviesapi.club/movie/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`
       ]
     }
   }, [contentId, contentType, currentSeasonNumber, currentEpisodeNumber])
@@ -249,7 +247,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, onClose, contentT
           src={currentSrc}
           className="w-full h-full border-0"
           allowFullScreen
-          allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen; web-share; camera; microphone; geolocation"
           onError={handleSourceError}
           title={title}
           style={{ 
@@ -257,6 +255,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, onClose, contentT
             filter: 'contrast(1.1) brightness(1.05)' // Enhance video quality
           }}
           referrerPolicy="no-referrer"
+          {...({
+            webkitAllowFullScreen: true,
+            mozAllowFullScreen: true
+          } as React.IframeHTMLAttributes<HTMLIFrameElement>)}
         />
         
         {/* Ad blocker overlay - blocks potential ad overlays */}

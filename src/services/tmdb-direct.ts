@@ -899,7 +899,7 @@ interface WatchlistAddItem {
   poster_path: string | null;
   backdrop_path: string | null;
   overview: string;
-  release_date: string;
+  release_date: string | null;
   vote_average: number;
 }
 
