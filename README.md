@@ -450,6 +450,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE
 
 [🐛 Report Bug](../../issues) • [✨ Request Feature](../../issues) • [💬 Discussions](../../discussions)
 
-Made with ❤️ by the WeFlix Team
+Developed by Phyo Min Thein(Leo)
 
 </div>
