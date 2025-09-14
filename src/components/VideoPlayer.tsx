@@ -118,18 +118,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, title, onClose, contentT
   const streamingSources = React.useMemo(() => {
     if (contentType === 'tv') {
       return [
-        `https://www.2embed.cc/embedtv/${contentId}&s=${currentSeasonNumber}&e=${currentEpisodeNumber}&ads=false&adblock=true&noad=1&noads=true&ad=0`,
-        `https://player.smashy.stream/tv/${contentId}?s=${currentSeasonNumber}&e=${currentEpisodeNumber}&ads=0&adblock=1&noad=true&noads=1&ad=false`,
         `https://vidsrc.me/embed/tv?tmdb=${contentId}&season=${currentSeasonNumber}&episode=${currentEpisodeNumber}&ads=false&adblock=true&noad=1&noads=true`,
-        `https://moviesapi.club/movie/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`,
 
       ]
     } else {
       return [
         `https://vidsrc.me/embed/movie?tmdb=${contentId}&ads=false&adblock=true&noad=1&noads=true`,
-        `https://www.2embed.cc/embed/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`,
-        `https://player.smashy.stream/movie/${contentId}?ads=0&adblock=1&noad=true&noads=1&ad=false`,
-        `https://moviesapi.club/movie/${contentId}?ads=false&adblock=true&noad=1&noads=true&ad=0`
       ]
     }
   }, [contentId, contentType, currentSeasonNumber, currentEpisodeNumber])
